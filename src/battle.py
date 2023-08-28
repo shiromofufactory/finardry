@@ -859,7 +859,7 @@ class Battle:
     # 戦闘画面表示メイン
     def draw(self):
         # 背景
-        u = 0 if self.floor < 6 else 16
+        u = 16 if self.floor == 6 else 0
         for x in range(32):
             px.blt(x * 16, 0, 0, u, 224, 16, 32, 0)
         # モンスター
@@ -1168,18 +1168,18 @@ class Battle:
             px.blt(x, y + 32, 2, u3, v, 16, 16, 0)
         elif fx_type == ("blind"):
             pat = 4 - ((fx_len - 1) // 2)
-            x, y = (mx - 16, my - 12) if is_member else (mx + 8, my + 8)
+            x, y = (mx - 16, my - 24) if is_member else (mx + 8, my + 8)
             if pat in (0, 2):
-                px.blt(x, y + 8, 2, 128, 64, 16, 8, 0)
-                px.blt(x + 24, y + 8, 2, 128, 64, 16, 8, 0)
+                px.blt(x, y, 2, 128, 64, 16, 8, 0)
+                px.blt(x + 24, y, 2, 128, 64, 16, 8, 0)
             if pat in (1, 3):
-                px.blt(x, y + 24, 2, 128, 64, 16, 8, 0)
-                px.blt(x + 24, y + 24, 2, 128, 64, 16, 8, 0)
+                px.blt(x, y + 16, 2, 128, 64, 16, 8, 0)
+                px.blt(x + 24, y + 16, 2, 128, 64, 16, 8, 0)
             if pat in (2, 3):
-                px.blt(x, y + 40, 2, 128, 64, 16, 8, 0)
-                px.blt(x + 24, y + 40, 2, 128, 64, 16, 8, 0)
+                px.blt(x, y + 32, 2, 128, 64, 16, 8, 0)
+                px.blt(x + 24, y + 32, 2, 128, 64, 16, 8, 0)
             if pat == 4:
-                px.blt(x, y + 40, 2, 128, 72, 16, 8, 0)
+                px.blt(x, y + 32, 2, 128, 72, 16, 8, 0)
         elif fx_type == "heal1":
             w = 16 if (fx_len // 3) % 2 == 0 else -16
             px.blt(mx, my + 4, 2, 112, 112, w, 16, 0)

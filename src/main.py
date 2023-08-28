@@ -55,8 +55,8 @@ class App:
             "",
             "そうさほうほう（コントローラ)",
             " じゅうじキー  : いどう、カーソルせんたく",
-            " A/みぎボタン : けってい",
-            " B/ひだりボタン: キャンセル",
+            " A/したボタン : けってい",
+            " B/みぎボタン : キャンセル",
             " X/うえボタン : メニューをひらく",
         ]
         Window.open("opening-guide", 4, 7, 27, 17, texts, True)
@@ -83,10 +83,13 @@ class App:
             "d_": px.btn(px.KEY_DOWN) or px.btn(px.GAMEPAD1_BUTTON_DPAD_DOWN),
             "l_": px.btn(px.KEY_LEFT) or px.btn(px.GAMEPAD1_BUTTON_DPAD_LEFT),
             "r_": px.btn(px.KEY_RIGHT) or px.btn(px.GAMEPAD1_BUTTON_DPAD_RIGHT),
-            "u": px.btnp(px.KEY_UP, 5, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_UP),
-            "d": px.btnp(px.KEY_DOWN, 5, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_DOWN),
-            "l": px.btnp(px.KEY_LEFT, 5, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_LEFT),
-            "r": px.btnp(px.KEY_RIGHT, 5, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_RIGHT),
+            "u": px.btnp(px.KEY_UP, 5, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_UP, 5, 2),
+            "d": px.btnp(px.KEY_DOWN, 5, 2)
+            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_DOWN, 5, 2),
+            "l": px.btnp(px.KEY_LEFT, 5, 2)
+            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_LEFT, 5, 2),
+            "r": px.btnp(px.KEY_RIGHT, 5, 2)
+            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_RIGHT, 5, 2),
             "s": px.btnp(px.KEY_S, 5, 2) or px.btnp(btn_a, 5, 2),
             "a": px.btnp(px.KEY_A, 5, 2) or px.btnp(btn_b, 5, 2),
             "w": px.btnp(px.KEY_W, 5, 2) or px.btnp(btn_y, 5, 2),
@@ -954,12 +957,14 @@ class App:
                 if win_img.parm == 0:
                     win.update_cursol(btn)
                     if btn["a"]:
-                        win.cur_y == 3
+                        win.cur_y = 3
                 if btn["s"] or btn["a"]:
-                    if win_img.parm == 1 or win.cur_y == 3:
+                    if win_img.parm == 1:
                         self.end_battle()
                     elif btn["a"]:
                         return
+                    elif win.cur_y == 3:
+                        self.end_battle()
                     elif win.cur_y in (1, 2):
                         win_mem.add_cursol([i * 3 for i in range(len(bt.members))])
                         win_mem.parm = win.cur_y
@@ -1279,8 +1284,8 @@ class App:
             if pl.moved:
                 if not pl.on_door:
                     self.moved()
-                elif not pl.backmoving and px.rndi(0, 5) == 0:
-                    self.encount = 72
+                elif not pl.backmoving and px.rndi(0, 9) == 0:
+                    self.encount = 100
                 exist_living = False
                 for member in self.members:
                     exist_living = exist_living or (member.health < 2)
@@ -1315,7 +1320,7 @@ class App:
         else:
             if pl.moved:
                 pl.moved = False
-            if "warp" in self.saved_entity:
+            if self.saved_entity["warp"]:
                 if btn["s"]:
                     if (
                         pl.cell in " 0!"
@@ -1904,7 +1909,7 @@ class App:
                 self.set_transparent(member, id, item_id)
                 return False, False
         elif id == 21:  # ミルワ
-            pl.light = 60
+            pl.light = 80
             description = "あかりが ともった "
         elif id == 30:  # ロミルワ
             pl.light = -1
@@ -2291,7 +2296,7 @@ class App:
             health = member.health
             if health < 4:
                 member.heal_and_poison()
-            if health == 2 and member.vit // 9 > px.rndi(0, 99):
+            if health == 2 and member.vit // 9 > px.rndi(0, 255):
                 member.health = 0
             if health != member.health:
                 self.set_members_pos()
@@ -2320,12 +2325,12 @@ class App:
                 if self.do_event(self.events[key].split(",")):
                     return
         # エンカウント
-        self.encount += px.rndi(1, 3)
+        self.encount += px.rndi(1, 4)
         chamber_encount = None
         if location in chambers_master:
             if not location in self.chambers or not self.chambers[location]:
                 chamber_encount = location
-        if self.encount > 72 or chamber_encount:
+        if self.encount > 100 or chamber_encount:
             # self.battle = Battle(None, chamber_encount, self.members, self.items, 4)
             self.battle = Battle(pl.z + 1, chamber_encount, self.members, self.items)
             self.start_battle()
