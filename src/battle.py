@@ -1018,7 +1018,7 @@ class Battle:
                         self.draw_fx(mbe, mx, my, True)
                     mbe["fx_len"] = max(mbe["fx_len"] - 1, 0)
         if self.completed:
-            self.win_motion = min(self.win_motion + 1, 30)
+            self.win_motion = min(self.win_motion + 1, 35)
         if self.warp_fx:
             screen_ptr = px.screen.data_ptr()
             k = [1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 64][
@@ -1168,18 +1168,18 @@ class Battle:
             px.blt(x, y + 32, 2, u3, v, 16, 16, 0)
         elif fx_type == ("blind"):
             pat = 4 - ((fx_len - 1) // 2)
-            x, y = (mx - 16, my - 24) if is_member else (mx + 8, my + 8)
+            x, y = (mx - 16, my - 24) if is_member else (mx + 8, my + 16)
             if pat in (0, 2):
                 px.blt(x, y, 2, 128, 64, 16, 8, 0)
-                px.blt(x + 24, y, 2, 128, 64, 16, 8, 0)
+                px.blt(x + 32, y, 2, 128, 64, 16, 8, 0)
             if pat in (1, 3):
                 px.blt(x, y + 16, 2, 128, 64, 16, 8, 0)
-                px.blt(x + 24, y + 16, 2, 128, 64, 16, 8, 0)
+                px.blt(x + 32, y + 16, 2, 128, 64, 16, 8, 0)
             if pat in (2, 3):
                 px.blt(x, y + 32, 2, 128, 64, 16, 8, 0)
-                px.blt(x + 24, y + 32, 2, 128, 64, 16, 8, 0)
+                px.blt(x + 32, y + 32, 2, 128, 64, 16, 8, 0)
             if pat == 4:
-                px.blt(x, y + 32, 2, 128, 72, 16, 8, 0)
+                px.blt(x, y + 32, 2, 128, 72, 48, 8, 0)
         elif fx_type == "heal1":
             w = 16 if (fx_len // 3) % 2 == 0 else -16
             px.blt(mx, my + 4, 2, 112, 112, w, 16, 0)
@@ -1346,11 +1346,13 @@ class Battle:
             motion = 5
         if member.health in (1, 2):
             motion = 5
+        elif member.health == 3:
+            motion = 0
         elif (
             motion == 0
             and self.completed
             and member.health == 0
-            and self.win_motion % 20 < 10
+            and (self.win_motion + 15) % 20 < 10
         ):
             motion = 6
         return x, y, member, action, motion
@@ -1451,6 +1453,12 @@ class Battle:
         if idx in self.members_idxs(True):
             if self.members[idx].atc:
                 values.append(0)
+        # にげるは最初のメンバのみ
+        for cm in self.commands:
+            if not cm["action"] is None:
+                break
+        else:
+            values.append(1)
         values.append(2)
         if len(mb.spells) and not self.preemptive and not mb.silent:
             values.append(3)
@@ -1459,8 +1467,6 @@ class Battle:
         if mb.job_id == 5:
             values.append(5)
         values.append(6)
-        if idx == self.members_idxs(True)[0]:
-            values.append(1)
         # コマンドが５を超える場合、みをまもる > ディスペルを外す
         if len(values) > 5:
             values = [value for value in values if value != 2]

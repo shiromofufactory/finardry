@@ -1606,7 +1606,7 @@
     "hit": 0,
     "healing": 5,
     "tribe": 0,
-    "resist": [1, 2, 4, 7, 9],
+    "resist": [1, 2, 4, 9],
     "stocks": 0,
     "price": 0,
     "use": 36,

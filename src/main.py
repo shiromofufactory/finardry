@@ -60,7 +60,8 @@ class App:
             " X/うえボタン : メニューをひらく",
         ]
         Window.open("opening-guide", 4, 7, 27, 17, texts, True)
-        Window.selector("opening")
+        win = Window.selector("opening")
+        win.cur_y = 1 if self.load_data() else 0
         Sounds.bgm("wiz-edge")
         px.run(self.update, self.draw)
 
@@ -140,14 +141,13 @@ class App:
             return
         elif Window.get("opening"):
             win = Window.get("opening").update_cursol(btn)
-            cur_y = win.cur_y
             if btn["s"] or btn["a"]:
                 self.btn_reverse = btn["a"]
-                self.init_data()
+                cur_y = win.cur_y
                 Window.close()
                 self.visible = False
-                if cur_y == 1:
-                    self.load_data()
+                if cur_y == 0:
+                    self.init_data()
                 if self.members:
                     if self.player.z >= 0:
                         self.scene = 0
@@ -449,12 +449,15 @@ class App:
                             self.show_menu_members()
                         win.sub_cur_y = None
             elif btn["a"]:
-                win.has_cur = False
+                if win.parm == 4 and not win.sub_cur_y is None:
+                    win.sub_cur_y = None
+                else:
+                    win.has_cur = False
             return
         # メニューウィンドウ
         elif Window.get("menu"):
             win = Window.get("menu").update_cursol(btn)
-            mb_idx = Window.all["menu_members"].cur_y or 0
+            mb_idx = Window.get("menu_members").cur_y or 0
             if btn["s"]:
                 if win.cur_y == 0:
                     Window.close()
@@ -462,9 +465,15 @@ class App:
                         Sounds.sound(7)
                 elif win.cur_y in [1, 4]:
                     parm = win.cur_y
-                    Window.all["menu_members"].add_cursol(
+                    Window.get("menu_members").add_cursol(
                         [i * 4 for i in range(len(self.members))]
                     ).parm = parm
+                    if win.cur_y == 1:  # じゅもん
+                        while True:
+                            if self.members[mb_idx].spells:
+                                break
+                            mb_idx = util.loop(mb_idx, 1, len(self.members))
+                        Window.get("menu_members").cur_y = mb_idx
                 elif win.cur_y == 2:  # そうび
                     Window.close()
                     self.show_equips(mb_idx)
@@ -1266,7 +1275,7 @@ class App:
                 "",
                 "      あそんでくれて ありがとう！",
                 "",
-                "      ここまでの プレイじかんは：",
+                "      ここまでの プレイじかんは",
                 f"         {util.play_time(self.frames,True)}",
                 "",
                 "",
@@ -1420,6 +1429,7 @@ class App:
     # ロード
     def load_data(self):
         data = Userdata.load()
+        success = False
         try:
             self.player = Actor(
                 {
@@ -1439,10 +1449,11 @@ class App:
             self.encount = data["encount"]
             self.chambers = data["chambers"]
             self.frames = data["frames"]
+            success = True
         except:
             self.init_data()
-        print(self.members)
         self.set_members_pos()
+        return success
 
     def init_data(self):
         self.player = Actor({"x": 1, "y": 39, "z": -1, "dir": 0})
