@@ -78,6 +78,14 @@ class Window:
             self.draw_member(8, 6, members[self.parm])
         elif self.key == "menu_equips":
             self.draw_member(8, 6, members[self.parm])
+        if self.key == "shop_msg" and not self.parm is None:
+            item = self.parm
+            for i, member in enumerate(members):
+                motion = 6 if member.can_equip(item) and px.frame_count % 30 < 15 else 0
+                self.draw_member(4 + i * 48, 6, member, motion)
+                if item.id in member.equips:
+                    add_y = 1 if member.health < 4 else 0
+                    self.text(self.x1 + i * 6 + 3, self.y1 + add_y, "E")
         elif self.key == "training_new":
             for idx in range(4):
                 x = self.x1 * 8 + idx * 56 + 16
@@ -101,8 +109,11 @@ class Window:
             px.blt(x1 + cx - 8, y1 + cy - 2, 0, 0, 96, 16, 16, 3)
 
     # キャラクタ表示
-    def draw_member(self, x, y, mb):
-        motion = 5 if (mb.poison or mb.health in (1, 2) or mb.hp <= mb.mhp // 4) else 0
+    def draw_member(self, x, y, mb, motion=0):
+        if mb.poison or mb.health in (1, 2) or mb.hp <= mb.mhp // 4:
+            motion = 5
+        if mb.health > 2:
+            motion = 0
         util.draw_member(self.x1 * 8 + x, self.y1 * 12 + y, mb, motion)
 
     def text(self, x, y, t, c1=7, c2=None):

@@ -526,11 +526,11 @@ class App:
                     self.show_catsle(0)
             return
         # ボルタックしょうてん：かう
-        elif "shop_buy" in Window.all:
-            win = Window.all["shop_buy"].update_cursol(btn)
+        elif Window.get("shop_buy"):
+            win = Window.get("shop_buy").update_cursol(btn)
             self.show_shop_guide()
+            item = win.cur_value
             if btn["s"]:
-                item = win.values[win.cur_y]
                 if self.gold < item.price:
                     self.show_shop_msg("おかねが たりないようですよ")
                     Sounds.sound(7)
@@ -547,7 +547,7 @@ class App:
                 self.items.sort()
                 Window.close([win, "shop_msg", "shop_guide"])
             elif btn["u"] or btn["d"]:
-                self.show_shop_msg("")
+                self.show_shop_msg("", item)
             return
         # ボルタックしょうてん：うる
         elif "shop_sell" in Window.all:
@@ -582,7 +582,7 @@ class App:
             if btn["s"]:
                 if win.cur_x == 0:  # かう
                     self.show_shop_buy()
-                    self.show_shop_msg("なにを かいますか？")
+                    self.show_shop_msg("", Window.get("shop_buy").cur_value)
                 else:  # うる
                     if len(self.items) > 0:
                         self.show_shop_sell()
@@ -2032,7 +2032,9 @@ class App:
     def show_shop_guide(self):
         win = Window.get("shop_buy")
         item = win.values[win.cur_y]
-        Window.open("shop_guide", 17, 5, 29, 16, item.details(True))
+        Window.open(
+            "shop_guide", 17, 5, 29, 16, item.details(True, self.items.count(item.id))
+        )
 
     # ボルタックしょうてん：売る
     def show_shop_sell(self):
@@ -2044,9 +2046,9 @@ class App:
             )
         Window.open("shop_sell", 2, 5, 29, 16, texts).add_cursol()
 
-    # ボルタックしょうてん：メッセ維持
-    def show_shop_msg(self, msg):
-        Window.open("shop_msg", 2, 18, 29, 18, msg)
+    # ボルタックしょうてん：メッセージ
+    def show_shop_msg(self, msg, parm=None):
+        Window.open("shop_msg", 2, 18, 29, 19, msg).parm = parm
 
     # カントじいん：メイン
     def show_temple(self, msg):
@@ -2369,7 +2371,6 @@ class App:
         elif values[0] == "fall":
             Window.popup("シュート！").parm = values
         elif values[0] == "msg":
-            print(self.has_item(77))
             # 個別イベント回避
             if values[1] == "b1-3" and 14 in self.items:
                 return False
@@ -2386,7 +2387,6 @@ class App:
             elif values[1] in ("b4-4", "b4-9", "b4-10") and 15 in self.items:
                 return False
             elif values[1] == "b4-2" and self.has_item(77):
-                print("b4-2!")
                 values[1] = "b4-2w"
             elif values[1] in ("b4-6"):
                 if pl.dir != 0:

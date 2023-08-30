@@ -1268,8 +1268,8 @@ class Battle:
     # 敵を倒した
     def kill_monster(self, monster, dispell=False):
         if not dispell:
-            self.total_exp += monster.exp
-            self.total_gold += monster.gold
+            self.total_exp = min(monster.exp, 999999)
+            self.total_gold = min(monster.gold, 999999)
         monster.hp = 0
         monster.fade = 1
         self.wait = 12

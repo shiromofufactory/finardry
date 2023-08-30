@@ -15,7 +15,6 @@ class Monster:
             self.hp = self.mhp
         else:
             self.hp = int(self.mhp * px.rndf(0.8, 1.0))
-        print(f"HP {self.hp}/{self.mhp}")
         self.sleeping = 0
         self.silent = False
         self.spelled = []
