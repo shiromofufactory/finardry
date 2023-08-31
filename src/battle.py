@@ -165,7 +165,7 @@ class Battle:
             for idx, mb in enumerate(self.members):
                 if mb.fx and mb.fx[0] == "guard":
                     mb.fx = None
-                if mb.health == 1 and px.rndi(0, 5) < 2:
+                if mb.health == 1 and px.rndi(0, 4) < 2:
                     mb.health = 0
                 damage = 0
                 if mb.poison:
@@ -343,8 +343,8 @@ class Battle:
                     mbe = self.members_effection[idx]
                     if mbe["action"] == "cure":
                         mbe["fx_type"] = "cure"
-                        mbe["fx_len"] = 16
-                        fx_len = 16
+                        mbe["fx_len"] = 1
+                        fx_len = 1
                 for idx in self.monsters_effection:
                     ms = self.monsters[idx]
                     mse = self.monsters_effection[idx]
@@ -482,6 +482,8 @@ class Battle:
             if "cure_health" in mbe:
                 if mb.health <= mbe["cure_health"]:
                     mb.health = 0
+                if mbe["cure_health"] > 2:
+                    mb.silent = False
             if "warp" in mbe:
                 self.warp = mbe["warp"]
         for idx in self.monsters_effection:
@@ -643,7 +645,7 @@ class Battle:
                 str_breath = "どくのブレス" if is_poison else "ブレス"
                 self.popover(f"{ms.name}は {str_breath}をはいた", 18)
                 Sounds.sound(10)
-                for idx in self.members_idxs():
+                for idx in self.members_idxs(False, True):
                     mb = self.members[idx]
                     if mb.health < 3:
                         if is_poison:
@@ -732,7 +734,7 @@ class Battle:
         fx_len = 0
         sound_id = None
         target = -1 if spell.target == 4 else self.select_member()
-        for idx in self.members_idxs():
+        for idx in self.members_idxs(False, True):
             mb = self.members[idx]
             if target in (idx, -1) and mb.health < 3:
                 if spell.attr in (1, 2, 3):
@@ -1168,7 +1170,7 @@ class Battle:
             px.blt(x, y + 32, 2, u3, v, 16, 16, 0)
         elif fx_type == ("blind"):
             pat = 4 - ((fx_len - 1) // 2)
-            x, y = (mx - 16, my - 24) if is_member else (mx + 8, my + 16)
+            x, y = (mx - 16, my - 16) if is_member else (mx + 8, my + 16)
             if pat in (0, 2):
                 px.blt(x, y, 2, 128, 64, 16, 8, 0)
                 px.blt(x + 32, y, 2, 128, 64, 16, 8, 0)
@@ -1268,8 +1270,8 @@ class Battle:
     # 敵を倒した
     def kill_monster(self, monster, dispell=False):
         if not dispell:
-            self.total_exp = min(monster.exp, 999999)
-            self.total_gold = min(monster.gold, 999999)
+            self.total_exp = min(self.total_exp + monster.exp, 999999)
+            self.total_gold = min(self.total_gold + monster.gold, 999999)
         monster.hp = 0
         monster.fade = 1
         self.wait = 12

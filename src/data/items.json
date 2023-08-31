@@ -1312,7 +1312,7 @@
     "hit": 0,
     "healing": 1,
     "tribe": 0,
-    "resist": [3, 11],
+    "resist": [3, 4, 11],
     "stocks": 0,
     "price": 500000,
     "use": 0,

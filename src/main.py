@@ -84,18 +84,18 @@ class App:
             "d_": px.btn(px.KEY_DOWN) or px.btn(px.GAMEPAD1_BUTTON_DPAD_DOWN),
             "l_": px.btn(px.KEY_LEFT) or px.btn(px.GAMEPAD1_BUTTON_DPAD_LEFT),
             "r_": px.btn(px.KEY_RIGHT) or px.btn(px.GAMEPAD1_BUTTON_DPAD_RIGHT),
-            "u": px.btnp(px.KEY_UP, 5, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_UP, 5, 2),
-            "d": px.btnp(px.KEY_DOWN, 5, 2)
-            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_DOWN, 5, 2),
-            "l": px.btnp(px.KEY_LEFT, 5, 2)
-            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_LEFT, 5, 2),
-            "r": px.btnp(px.KEY_RIGHT, 5, 2)
-            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_RIGHT, 5, 2),
-            "s": px.btnp(px.KEY_S, 5, 2) or px.btnp(btn_a, 5, 2),
-            "a": px.btnp(px.KEY_A, 5, 2) or px.btnp(btn_b, 5, 2),
-            "w": px.btnp(px.KEY_W, 5, 2) or px.btnp(btn_y, 5, 2),
+            "u": px.btnp(px.KEY_UP, 8, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_UP, 8, 2),
+            "d": px.btnp(px.KEY_DOWN, 8, 2)
+            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_DOWN, 8, 2),
+            "l": px.btnp(px.KEY_LEFT, 8, 2)
+            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_LEFT, 8, 2),
+            "r": px.btnp(px.KEY_RIGHT, 8, 2)
+            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_RIGHT, 8, 2),
+            "s": px.btnp(px.KEY_S, 8, 2) or px.btnp(btn_a, 8, 2),
+            "a": px.btnp(px.KEY_A, 8, 2) or px.btnp(btn_b, 8, 2),
+            "w": px.btnp(px.KEY_W, 8, 2) or px.btnp(btn_y, 8, 2),
             "w_": px.btn(px.KEY_W) or px.btn(btn_y),
-            "q": px.btnp(px.KEY_Q, 5, 2),
+            "q": px.btnp(px.KEY_Q, 8, 2),
             "q_": px.btn(px.KEY_Q),
         }
         pressed = btn["s"] or btn["a"]
