@@ -1194,6 +1194,9 @@ class App:
                 parm = win.parm
                 if parm == "b1-2":
                     self.go_catsle(8)
+                elif parm == "b1-3":
+                    self.player.dir = 0
+                    self.player.backmove()
                 elif parm in ("b1-3", "b2-1", "b2-3", "b2-5", "b2-6", "b4-1", "b4-4"):
                     self.player.backmove()
                 elif parm == "b1-4":
@@ -1645,8 +1648,11 @@ class App:
             win.texts = texts
 
     # ゴールドを得る
-    def add_gold(self, max_value, min_rate=1.0):
-        value = px.rndi(int(max_value * min_rate), max_value)
+    def add_gold(self, max_value, min_rate=None):
+        if min_rate is None:
+            value = max_value
+        else:
+            value = px.rndi(int(max_value * min_rate), max_value)
         self.gold = min(self.gold + value, 999999)
         return value
 

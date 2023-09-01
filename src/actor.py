@@ -200,8 +200,8 @@ class Actor:
                             and px.frame_count % 30 < 3
                             and self.is_real
                         )
-                        if self.light or passed == 2 or near:
-                            u, 7
+                        if self.light or not self.is_real or passed == 2 or near:
+                            u = 7
                     v = 4 if self.z < 5 else 5
                     v_u = mapped[(y + size - 1) % size][x]
                     v_d = mapped[(y + 1) % size][x]
