@@ -575,6 +575,9 @@ class Battle:
             self.wait = 4
             if self.action["command"] == "attack":  # 攻撃
                 mb_idx = self.select_member(True)
+                if mb_idx is None:
+                    self.end_action()
+                    return
                 mb = self.members[mb_idx]
                 blows = 0
                 damage = 0
@@ -589,7 +592,7 @@ class Battle:
                 for _ in range(ms.hits):
                     if ac > px.rndi(0, 19) or mb.health:
                         blows += 1
-                        damage += int(ms.atc * px.rndf(1.0, 2.0) / scale)
+                        damage += max(int(ms.atc * px.rndf(1.0, 2.0) / scale), 1)
                         for addition in ms.additions:
                             rate = 2
                             if addition == 11:  # 即死
@@ -717,15 +720,18 @@ class Battle:
     # 攻撃ターゲット決定
     def select_member(self, only_vanguard=False):
         mb_list = self.members_idxs(only_vanguard)
-        if not mb_list:  # 全員石化など
-            mb_list = self.members_idxs(True, True)
+        if not mb_list:
+            return None
         max_idx = max(self.members_vanguard_idxs)
+        if max_idx < mb_list[0]:  # 前衛に誰もいない
+            return None
         while True:
             mb_idx = px.rndi(0, len(self.members) - 1)
             if only_vanguard and mb_idx > px.rndi(0, 5):
                 continue  # 前の人のほうが狙われやすい調整
             if mb_idx in mb_list and mb_idx <= max_idx:
                 break
+        print("end")
         return mb_idx
 
     # 敵キャラ呪文
@@ -1576,7 +1582,9 @@ class Battle:
     ### アニメーション
 
     def move_forward(self, member_idx):
-        self.members[member_idx].fx = ["forward", 0]
+        fx = self.members[member_idx].fx
+        motion = -4 if fx and fx[0] == "persuaded" else 0
+        self.members[member_idx].fx = ["forward", motion]
 
     def move_backward(self, member_idx):
         fx = self.members[member_idx].fx
