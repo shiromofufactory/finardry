@@ -408,11 +408,10 @@ class Battle:
             if cmd["target"] in (idx, -1):
                 ms = self.monsters[idx]
                 if ms.nullify > px.rndi(0, 255):
-                    print("無効化した")
                     self.monsters_effection[idx] = {
                         "action": None,
                         "fx_type": "nullify",
-                        "fx_len": 18,
+                        "fx_len": 12,
                     }
                 elif spell.attr in (1, 2, 3):
                     sound_id = spell.sound
@@ -813,18 +812,19 @@ class Battle:
             if "additions" in mbe and mb.health < 3:
                 msg = ""
                 for addition in mbe["additions"]:
-                    if addition == 7 and not mb.poison:
-                        msg = "どくを うけた"
-                        mb.poison = 1
-                    elif addition == 8 and mb.health < 2:
-                        msg = "しびれて うごけなくなった"
-                        mb.health = max(mb.health, 2)
+                    if addition == 11:
+                        msg = "くびを はねられた"
+                        mb.lost_hp()
                     elif addition == 9 and mb.health < 3:
                         msg = "いしに かえられた"
                         mb.health = max(mb.health, 3)
-                    elif addition == 11:
-                        msg = "くびを はねられた"
-                        mb.lost_hp()
+                        mb.poison = 0
+                    elif addition == 8 and mb.health < 2:
+                        msg = "しびれて うごけなくなった"
+                        mb.health = max(mb.health, 2)
+                    elif addition == 7 and not mb.poison:
+                        msg = "どくを うけた"
+                        mb.poison = 1
                 if msg and "blows" in mbe:
                     self.popover(f"{mb.name}は {msg}")
                     self.wait = 6
