@@ -1284,7 +1284,7 @@ class App:
                     exist_living = exist_living or (member.health < 2)
                 if self.no_living:
                     Window.message(["ぼうけんしゃたちは ぜんめつした"])
-                    return
+                return
             if pl.moving:
                 has_poison = False
                 for member in self.members:
