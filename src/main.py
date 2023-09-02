@@ -854,9 +854,11 @@ class App:
             if win_msg.parm:  # 罠発動
                 if btn["s"] or btn["a"]:
                     if trap == None:
-                        self.end_battle()
                         if self.no_living:
                             Window.message(["ぼうけんしゃたちは ぜんめつした"])
+                        else:
+                            self.get_treasure(1)
+                            win_msg.parm = None
                         return
                     elif trap == 5:  # テレポート
                         self.teleport()
@@ -995,28 +997,7 @@ class App:
                                 Sounds.sound(7)
                         return
                     elif trap is None:
-                        rewards = []
-                        for _ in range(2):
-                            tg = tr.treasure_group[px.rndi(0, 3)]
-                            if tg > 0 and len(self.items) < 40:
-                                items = [
-                                    item
-                                    for item in Item.all()
-                                    if item.treasure_group == tg
-                                ]
-                                while True:
-                                    item = items[px.rndi(0, len(items) - 1)]
-                                    # 非売品かつ売ったアイテムは出現率が下がる
-                                    if not item.id in self.stocks or px.rndi(0, 3) == 0:
-                                        break
-                                rewards.append(f" {item.name}")
-                                self.add_item(item)
-                            else:
-                                gold = self.add_gold(self.battle.total_gold, 0.4)
-                                rewards.append(f" {gold}G")
-                                break
-                        win_msg.texts = ["たからばこのなかには:", " と".join(rewards)]
-                        win_img.parm = 1
+                        self.get_treasure()
                     else:
                         self.do_trap(trap)
             return
@@ -2603,6 +2584,29 @@ class App:
         if trap == 8:
             Sounds.sound(14)
         win.parm = True
+
+    def get_treasure(self, down=0):
+        tr = self.battle.treasure
+        win_img = Window.get("treasure_img")
+        win_msg = Window.get("treasure_msg")
+        rewards = []
+        for _ in range(2):
+            tg = tr.treasure_group[px.rndi(0, 3)] - down
+            if tg > 0 and len(self.items) < 40:
+                items = [item for item in Item.all() if item.treasure_group == tg]
+                while True:
+                    item = items[px.rndi(0, len(items) - 1)]
+                    # 非売品かつ売ったアイテムは出現率が下がる
+                    if not item.id in self.stocks or px.rndi(0, 3) == 0:
+                        break
+                rewards.append(f" {item.name}")
+                self.add_item(item)
+            else:
+                gold = self.add_gold(self.battle.total_gold, 0.4)
+                rewards.append(f" {gold}G")
+                break
+        win_msg.texts = ["たからばこのなかには:", " と".join(rewards)]
+        win_img.parm = 1
 
     # 全滅？
     @property
