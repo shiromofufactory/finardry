@@ -2418,8 +2418,8 @@ class App:
 
     # マップ切り替え
     def change_map(self):
-        if (not Sounds.nocut and px.play_pos(3) is None) or px.play_pos(0) is None:
-            if Sounds.next_music:
+        if px.play_pos(3) is None or px.play_pos(0) is None:
+            if Sounds.next_music and not Sounds.nocut:
                 Sounds.bgm(Sounds.next_music)
             pl = self.player
             pl.x = self.next_x
@@ -2459,6 +2459,8 @@ class App:
     def release_transparent(self, confirmed):
         Window.close()
         pl = self.player
+        pl.sx = 0
+        pl.sy = 0
         self.set_members_pos()
         member = self.saved_entity["member"]
         if confirmed:
