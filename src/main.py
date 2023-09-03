@@ -899,23 +899,32 @@ class App:
                     str_members = ""
                     for mb_idx in targets:
                         mb = bt.members[mb_idx]
-                        if trap in (0, 1):
+                        effected = False
+                        if trap in (0, 1) and not 7 in mb.resist:
                             mb.poison = 1
+                            effected = True
                         elif trap in (2, 3):
                             dmg = 0
                             for _ in range(tr.lv + 1):
                                 dmg += px.rndi(1, 8)
+                            effected = True
                             mb.lost_hp(dmg)
-                        elif trap == 4:
+                        elif trap == 4 and not 8 in mb.resist:
                             mb.health = 2
+                            effected = True
                         elif trap in (6, 7):
                             if px.rndi(0, 1) and not 9 in mb.resist:
                                 mb.health = 3
-                            else:
+                                effected = True
+                            elif mb.health < 2 and not 8 in mb.resist:
                                 mb.health = 2
-                        str_members += f" {mb.name}"
+                                effected = True
+                        if effected:
+                            str_members += f" {mb.name}"
                     if len(targets) > 1 and len(targets) == len(bt.members):
                         str_members = " ぜんいん"
+                    if not str_members:
+                        str_members = " なし"
                     win_msg.texts = ["ひがいをうけた ぼうけんしゃ:", str_members]
                     self.show_treasure_members()
                     win.parm = None
