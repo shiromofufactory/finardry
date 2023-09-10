@@ -19,6 +19,7 @@ class BDFRenderer:
         self.fonts = self._parse_bdf(bdf_filename)
         self.screen_ptr = pyxel.screen.data_ptr()
         self.screen_width = pyxel.width
+        self.screen_height = pyxel.height
 
     def _parse_bdf(self, bdf_filename):
         fonts = {}
@@ -64,6 +65,7 @@ class BDFRenderer:
         dwidth, font_width, font_height, offset_x, offset_y, bitmap = font
         screen_ptr = self.screen_ptr
         screen_width = self.screen_width
+        screen_height = self.screen_height
         x = x + self.fontboundingbox[2] + offset_x
         y = (
             y
@@ -75,7 +77,10 @@ class BDFRenderer:
         for j in range(font_height):
             for i in range(font_width):
                 if (bitmap[j] >> i) & 1:
-                    screen_ptr[(y + j) * screen_width + x + i] = color
+                    dx = x + i
+                    dy = y + j
+                    if dx < screen_width and dy < screen_height:
+                        screen_ptr[dy * screen_width + dx] = color
 
     def draw_text(self, x, y, text, color=7, border_color=None, spacing=0):
         for char in text:

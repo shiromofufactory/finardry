@@ -8,9 +8,6 @@ import json
 import util
 
 
-base = "https://us-central1-finardry.cloudfunctions.net/"
-
-
 class Userdata:
     # 書き込み
     def save(data):

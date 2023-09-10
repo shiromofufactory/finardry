@@ -123,6 +123,9 @@ class App:
         elif Window.get("ev"):
             win = Window.get("ev").update_cursol(btn)
             if btn["s"]:
+                if win.cur_value == pl.z:
+                    Sounds.sound(7)
+                    return
                 self.set_position(pl.x, pl.y, win.cur_value, 8)
             if btn["s"] or btn["a"]:
                 Window.close()
@@ -959,6 +962,7 @@ class App:
                     print(f"乱数:{win_mem.cur_value}")
                     if not trap is None and failure_rate > win_mem.cur_value:
                         self.do_trap(trap)
+                        win_mem.has_cur = False
                         return
                     elif success_rate > win_mem.cur_value:
                         result = trap
