@@ -40,7 +40,7 @@ class Spell:
         dmg = 0
         count = self.intensity
         if self.attr in target.resist:
-            print(f"{target.name}は{const['attr'][self.attr]}に強い")
+            # print(f"{target.name}は{const['attr'][self.attr]}に強い")
             count = (count + 1) // 2
         for _ in range(count):
             dmg += px.rndi(2, 6)
@@ -71,5 +71,5 @@ class Spell:
             else:
                 rate = 0
         success = rate > px.rndi(0, 19)
-        print(f"{self.name} 耐性:{self.attr in you.resist} 成功確率:{rate} 結果:{success}")
+        # print(f"{self.name} 耐性:{self.attr in you.resist} 成功確率:{rate} 結果:{success}")
         return success

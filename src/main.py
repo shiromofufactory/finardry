@@ -22,7 +22,7 @@ chambers_master = util.load_json("data/chambers")
 
 class App:
     def __init__(self):
-        px.init(256, 256, title="Finardry")
+        px.init(256, 256, title="Finardry", quit_key=px.KEY_NONE)
         px.load("wiz2d.pyxres")
         # px.image(0).save("../images/image0.png", 1)
         # px.image(1).save("../images/image1.png", 1)
@@ -99,6 +99,9 @@ class App:
             "q_": px.btn(px.KEY_Q),
         }
         pressed = btn["s"] or btn["a"]
+        # リセット
+        if px.btnp(px.KEY_ESCAPE) or (btn["s"] and btn["s"] and btn["w"] and btn["q"]):
+            Userdata.reset()
         # マップ切り替え
         if not self.visible and pl:
             if not self.next_z is None:
@@ -216,10 +219,10 @@ class App:
                         traps = self.battle.treasure.traps
                         if px.rndi(0, 2) > 0 or not traps:
                             trap = None
-                            print("罠なし")
+                            # print("罠なし")
                         else:
                             trap = traps[px.rndi(0, len(traps) - 1)]
-                            print(f"罠:{const['traps'][trap]}")
+                            # print(f"罠:{const['traps'][trap]}")
                         win.parm = trap
                         self.show_treasure_members()
                         return
@@ -957,9 +960,9 @@ class App:
                     failure_rate = max(102 - success_rate, 0) // 3
                     if win_mem.parm == 2:
                         failure_rate = 0
-                    print(f"調査成功率:{success_rate}")
-                    print(f"暴発率:{failure_rate}")
-                    print(f"乱数:{win_mem.cur_value}")
+                    # print(f"調査成功率:{success_rate}")
+                    # print(f"暴発率:{failure_rate}")
+                    # print(f"乱数:{win_mem.cur_value}")
                     if not trap is None and failure_rate > win_mem.cur_value:
                         self.do_trap(trap)
                         win_mem.has_cur = False
@@ -1315,8 +1318,8 @@ class App:
                 return
             elif btn["a"]:
                 pl.timer = 0
-            elif btn["q"]:
-                print(pl.x, pl.y, pl.z)
+            # elif btn["q"]:
+            #     print(pl.x, pl.y, pl.z)
             # 簡易ステータスウィンドウ制御
             if pl.timer >= 30:
                 pl.timer = 30

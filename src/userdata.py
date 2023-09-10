@@ -39,3 +39,8 @@ class Userdata:
         except:
             print("Load Failed.")
             return None
+
+    # リセット（webのみ）
+    def reset():
+        if not LOCAL:
+            window.location.reload()

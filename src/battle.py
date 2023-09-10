@@ -61,7 +61,6 @@ class Battle:
         self.chamber_encount = chamber_encount
         self.floor = floor
         if chamber_encount:
-            print("玄室エンカウント")
             tg = monsters[0].treasure
             self.treasure = Treasure(tg) if tg else None
         else:
@@ -475,7 +474,7 @@ class Battle:
             if "shield" in mbe:
                 # -10より小さくならないように抑える
                 mb.ac_tmp = max(mb.ac_tmp - mbe["shield"], -10 - mb.ac + mb.ac_tmp)
-                print(f"変更後のAC:{mb.ac}({mb.ac_tmp}))")
+                # print(f"変更後のAC:{mb.ac}({mb.ac_tmp}))")
             if "cure_poison" in mbe:
                 mb.poison = 0
             if "cure_health" in mbe:
@@ -500,7 +499,7 @@ class Battle:
                     self.kill_monster(ms)
             elif mse["action"] == "unshield":
                 ms.ac += mse["unshield"]
-                print("変更後のAC:", ms.ac)
+                # print("変更後のAC:", ms.ac)
             elif mse["action"] == "sleep":
                 ms.sleeping = max(ms.sleeping, mse["sleeping"])
             elif mse["action"] == "silent":
@@ -519,7 +518,7 @@ class Battle:
         ms = self.monsters[idx]
         mse = self.monsters_effection[idx] if idx in self.monsters_effection else None
         if not ms.is_live or ms.sleeping:
-            print(f"{ms.name}は行動できない")
+            # print(f"{ms.name}は行動できない")
             self.end_action()
         # 行動を決定
         elif not "command" in self.action:
@@ -533,7 +532,7 @@ class Battle:
                 for tmp_mb in self.members:
                     if tmp_mb.health < 2:
                         mblv_sum += tmp_mb.lv
-                print(f"逃走判定　敵LV:{mslv_sum} 味方LV:{mblv_sum}")
+                # print(f"逃走判定　敵LV:{mslv_sum} 味方LV:{mblv_sum}")
                 if mslv_sum < mblv_sum and px.rndi(0, 9) < 3:
                     command = "run"
             if not command and "呼" in ms.actions:
@@ -557,13 +556,13 @@ class Battle:
                 and not self.suprise
             ):
                 rate = 5 if self.action["can_atc"] else 10
-                print(f"呪文発動判定 確率:{rate}")
+                # print(f"呪文発動判定 確率:{rate}")
                 if px.rndi(0, 9) < rate:
                     command = "spell"
             if not command and self.action["can_atc"]:
                 command = "attack"
             if command:
-                print(f"{ms.name}の行動 spd={self.action['spd']} cmd={command}")
+                # print(f"{ms.name}の行動 spd={self.action['spd']} cmd={command}")
                 self.action["command"] = command
                 ms.blink = 11
             else:
@@ -586,7 +585,7 @@ class Battle:
                 base_ac = 0 if guard else 10
                 ac = base_ac + mb.ac
                 scale = 2 if mb.weapon.tribe == ms.tribe else 1
-                print(f"攻撃:{ms.atc} 攻撃回数:{ms.hits}  味方のAC:{ac} 軽減率:{scale}")
+                # print(f"攻撃:{ms.atc} 攻撃回数:{ms.hits}  味方のAC:{ac} 軽減率:{scale}")
                 additions = {}
                 for _ in range(ms.hits):
                     if ac > px.rndi(0, 19) or mb.health:
@@ -604,8 +603,8 @@ class Battle:
                                 and scale < 2
                             ):
                                 additions[addition] = True
-                print(f"{mb.name}に {blows}回ヒット {damage}ダメージ")
-                print(f"追加効果:{additions}")
+                # print(f"{mb.name}に {blows}回ヒット {damage}ダメージ")
+                # print(f"追加効果:{additions}")
                 cure = min(damage, ms.mhp - ms.hp) if 10 in additions else 0
                 if cure:
                     self.monsters_effection[ms.idx] = {
@@ -613,7 +612,7 @@ class Battle:
                         "cure": cure,
                         "fx_len": 16,
                     }
-                    print(f"mhp:{ms.mhp} hp:{ms.hp} cure:{cure}")
+                    # print(f"mhp:{ms.mhp} hp:{ms.hp} cure:{cure}")
                 else:
                     self.monsters_effection[ms.idx] = {"fx_type": "done", "fx_len": 16}
                 self.members_effection[mb_idx] = {
@@ -683,10 +682,10 @@ class Battle:
                     for id in spell_ids
                     if not Spell(id).use_enemy in spell_ids and not id in ms.spelled
                 ]
-                print(f"使える呪文：{spell_ids}")
+                # print(f"使える呪文：{spell_ids}")
                 if spell_ids:
                     spell = Spell(spell_ids[px.rndi(0, len(spell_ids) - 1)])
-                    print(f"選択した呪文：{spell.name}({spell.id})")
+                    # print(f"選択した呪文：{spell.name}({spell.id})")
                     ms.spelled.append(spell.id)
                     self.popover(f"{ms.name}は {spell.name}をとなえた")
                     self.action["spell"] = spell
@@ -730,7 +729,6 @@ class Battle:
                 continue  # 前の人のほうが狙われやすい調整
             if mb_idx in mb_list and mb_idx <= max_idx:
                 break
-        print("end")
         return mb_idx
 
     # 敵キャラ呪文
@@ -802,7 +800,7 @@ class Battle:
                 mb.lost_hp(mbe["damage"])
             elif mbe["action"] == "unshield":
                 mb.ac_tmp += mbe["unshield"]
-                print("変更後のAC:", mb.ac)
+                # print("変更後のAC:", mb.ac)
             elif mbe["action"] == "sleep" and mb.health < 1:
                 mb.health = 1
             elif mbe["action"] == "silent":
@@ -833,7 +831,7 @@ class Battle:
             mse = self.monsters_effection[idx]
             if "cure" in mse:
                 ms.hp += mse["cure"]
-                print(f"{ms.name}のHP:{ms.hp}(+{mse['cure']})")
+                # print(f"{ms.name}のHP:{ms.hp}(+{mse['cure']})")
         self.end_action()
 
     # 行動終了
@@ -1216,7 +1214,6 @@ class Battle:
             px.blt(mx, my + 4, 2, u3, v3, w3, 16, 0)
         elif fx_type == "pure":
             pat = 3 - ((fx_len - 1) // 2) % 4
-            print(pat)
             px.blt(mx, my + 4, 2, 128 + pat * 16, 208, 16, 16, 0)
         elif fx_type == "shield":
             motion = fx_len % 3
