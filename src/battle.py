@@ -77,7 +77,7 @@ class Battle:
                 factor += (mb.spd + add_spd - 9) / len(members)
             for ms in monsters:
                 factor -= (6 - ms.ac // 2) / len(monsters)
-            print(f"先制/不意打ち判定変数:{factor}")
+            # print(f"先制/不意打ち判定変数:{factor}")
             if max(factor / 2, 0) + 1 > px.rndi(0, 19):
                 self.preemptive = True
             elif max(-factor / 2, 0) + 1 > px.rndi(0, 19):
@@ -224,15 +224,15 @@ class Battle:
         if mb.fx[0] == "forward":
             if mb.fx[1] < self.get_dist(mb_idx):  # 移動待ち
                 return
-            print(f"{mb.name}の行動 spd={self.action['spd']}")
-            print("command:", self.commands[mb_idx])
+            # print(f"{mb.name}の行動 spd={self.action['spd']}")
+            # print("command:", self.commands[mb_idx])
             if cmd["action"] == 0:  # 攻撃
                 rate_all = mb.hit
                 blows = 0
                 damage = 0
                 scale = 2 if mb.weapon.tribe == ms.tribe else 1
                 critical = False
-                print(f"攻撃:{mb.atc} 命中率:{rate_all}  敵のAC:{ms.ac} 倍率:{scale}")
+                # print(f"攻撃:{mb.atc} 命中率:{rate_all}  敵のAC:{ms.ac} 倍率:{scale}")
                 while rate_all > 0:
                     rate_use = min(rate_all, 20)
                     hit_real = 20 if ms.sleeping else rate_use - 10 + ms.ac
@@ -300,7 +300,7 @@ class Battle:
             cnt = 0
             for ms in self.monsters:
                 rate = max(10 + mb.lv - 2 * ms.lv, 1)
-                print(f"ディスペル成功率:{rate}")
+                # print(f"ディスペル成功率:{rate}")
                 if ms.is_live and ms.tribe == 3 and rate > px.rndi(0, 19):
                     cnt += 1
                     self.kill_monster(ms, True)
