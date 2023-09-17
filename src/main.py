@@ -470,11 +470,18 @@ class App:
                     if not self.show_items():
                         Sounds.sound(7)
                 elif win.cur_y in [1, 4]:
+                    if win.cur_y == 1:  # じゅもん
+                        for mb in self.members:
+                            if self.members[mb_idx].spells:
+                                break
+                        else:
+                            Sounds.sound(7)
+                            return
                     parm = win.cur_y
                     Window.get("menu_members").add_cursol(
                         [i * 4 for i in range(len(self.members))]
                     ).parm = parm
-                    if win.cur_y == 1:  # じゅもん
+                    if win.cur_y == 1:
                         while True:
                             if self.members[mb_idx].spells:
                                 break
@@ -2090,9 +2097,10 @@ class App:
                 texts = [
                     " はじめに キャラクターをとうろくしてください。",
                     " Finardyのパーティは 5にんへんせいです。",
+                    " 4・5にんめはこうえいで、せっきんせんができません。",
                     "",
                     " はじめてプレイするばあいは 「せんし・せんし・とうぞく・",
-                    " そうりょ・まほうつかい」 のへんせいがおすすめです。",
+                    " そうりょ・まほうつかい」 がおすすめです。",
                 ]
                 Window.open("training_tutorial", 1, 13, 30, 18, texts)
 
