@@ -471,8 +471,9 @@ class App:
                         Sounds.sound(7)
                 elif win.cur_y in [1, 4]:
                     if win.cur_y == 1:  # じゅもん
+                        can_spell = False
                         for mb in self.members:
-                            if self.members[mb_idx].spells:
+                            if mb.spells:
                                 break
                         else:
                             Sounds.sound(7)
@@ -830,7 +831,11 @@ class App:
                     self.show_shop()
                 elif win.cur_y == 2:
                     self.show_place(2)
-                    self.show_temple("  だれを たすけますか？")
+                    win_sel = self.show_temple("  だれを たすけますか？")
+                    for idx, mb in enumerate(self.members):
+                        if mb.health or mb.poison:
+                            win_sel.cur_y = idx
+                            break
                 elif win.cur_y == 3:
                     self.show_place(3)
                     self.show_training()
@@ -1634,9 +1639,10 @@ class App:
                 f"     HP {util.pad(mb.hp,3)}/{mb.status()}",
                 "",
             ]
-        Window.open("select_members", x, y, x + 16, y + 13, texts[:-1]).add_cursol(
-            [i * 3 for i in range(len(self.members))]
-        ).parm = parm
+        win = Window.open("select_members", x, y, x + 16, y + 13, texts[:-1])
+        win.add_cursol([i * 3 for i in range(len(self.members))])
+        win.parm = parm
+        return win
 
     # 個人ステータスウィンドウ
     def show_detail(self, member_idx=None):
@@ -2063,7 +2069,8 @@ class App:
     # カントじいん：メイン
     def show_temple(self, msg):
         Window.open("select_members_mes", 4, 18, 28, 18, msg)
-        self.show_select_members(None, 4, 3)
+        win = self.show_select_members(None, 4, 3)
+        return win
 
     # カントじいん：おかね欄
     def show_temple_gold(self, gold):
