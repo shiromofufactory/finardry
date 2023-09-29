@@ -52,14 +52,16 @@ class App:
             " Sキー     : けってい",
             " Aキー     : キャンセル",
             " Wキー     : メニューをひらく",
+            " Qキー     : BGM オン／オフ",
             "",
             "そうさほうほう（コントローラ)",
             " じゅうじキー  : いどう、カーソルせんたく",
             " A/したボタン : けってい",
             " B/みぎボタン : キャンセル",
-            " X/うえボタン : メニューをひらく",
+            " X/ひだりボタン: メニューをひらく",
+            " Y/うえボタン : BGM オン／オフ",
         ]
-        Window.open("opening-guide", 4, 7, 27, 17, texts, True)
+        Window.open("opening-guide", 4, 6, 27, 18, texts, True)
         win = Window.selector("opening")
         win.cur_y = 1 if self.load_data() else 0
         Sounds.bgm("wiz-edge")
@@ -74,11 +76,13 @@ class App:
         if self.btn_reverse:
             btn_a = px.GAMEPAD1_BUTTON_B
             btn_b = px.GAMEPAD1_BUTTON_A
-            btn_y = px.GAMEPAD1_BUTTON_X
+            btn_y = px.GAMEPAD1_BUTTON_Y
+            btn_x = px.GAMEPAD1_BUTTON_X
         else:
             btn_a = px.GAMEPAD1_BUTTON_A
             btn_b = px.GAMEPAD1_BUTTON_B
             btn_y = px.GAMEPAD1_BUTTON_Y
+            btn_x = px.GAMEPAD1_BUTTON_X
         btn = {
             "u_": px.btn(px.KEY_UP) or px.btn(px.GAMEPAD1_BUTTON_DPAD_UP),
             "d_": px.btn(px.KEY_DOWN) or px.btn(px.GAMEPAD1_BUTTON_DPAD_DOWN),
@@ -95,13 +99,19 @@ class App:
             "a": px.btnp(px.KEY_A, 8, 2) or px.btnp(btn_b, 8, 2),
             "w": px.btnp(px.KEY_W, 8, 2) or px.btnp(btn_y, 8, 2),
             "w_": px.btn(px.KEY_W) or px.btn(btn_y),
-            "q": px.btnp(px.KEY_Q, 8, 2),
-            "q_": px.btn(px.KEY_Q),
+            "q": px.btnp(px.KEY_Q, 8, 2) or px.btnp(btn_x, 8, 2),
+            "q_": px.btn(px.KEY_Q) or px.btn(btn_x),
         }
         pressed = btn["s"] or btn["a"]
         # リセット
         if px.btnp(px.KEY_ESCAPE) or (btn["s"] and btn["s"] and btn["w"] and btn["q"]):
             Userdata.reset()
+        # BGMオンオフ切り替え
+        if btn["q"]:
+            Sounds.no_bgm = not Sounds.no_bgm
+            music = Sounds.next_music or Sounds.cur_music
+            Sounds.cur_music = None
+            Sounds.bgm(music, Sounds.loop)
         # マップ切り替え
         if not self.visible and pl:
             if not self.next_z is None:

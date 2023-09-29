@@ -69,6 +69,7 @@ node_modules/
 dev
 public
 src/__pycache__
+src/local
 tools
 __pycache__
 images
