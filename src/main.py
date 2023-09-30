@@ -97,10 +97,10 @@ class App:
             or px.btnp(px.GAMEPAD1_BUTTON_DPAD_RIGHT, 8, 2),
             "s": px.btnp(px.KEY_S, 8, 2) or px.btnp(btn_a, 8, 2),
             "a": px.btnp(px.KEY_A, 8, 2) or px.btnp(btn_b, 8, 2),
-            "w": px.btnp(px.KEY_W, 8, 2) or px.btnp(btn_y, 8, 2),
-            "w_": px.btn(px.KEY_W) or px.btn(btn_y),
-            "q": px.btnp(px.KEY_Q, 8, 2) or px.btnp(btn_x, 8, 2),
-            "q_": px.btn(px.KEY_Q) or px.btn(btn_x),
+            "w": px.btnp(px.KEY_W, 8, 2) or px.btnp(btn_x, 8, 2),
+            "w_": px.btn(px.KEY_W) or px.btn(btn_x),
+            "q": px.btnp(px.KEY_Q, 8, 2) or px.btnp(btn_y, 8, 2),
+            "q_": px.btn(px.KEY_Q) or px.btn(btn_y),
         }
         pressed = btn["s"] or btn["a"]
         # リセット
