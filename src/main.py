@@ -52,14 +52,14 @@ class App:
             " Sキー     : けってい",
             " Aキー     : キャンセル",
             " Wキー     : メニューをひらく",
-            " Qキー     : BGM オン／オフ",
+            " ESCキー   : リセット",
             "",
             "そうさほうほう（コントローラ)",
             " じゅうじキー  : いどう、カーソルせんたく",
             " A/したボタン : けってい",
             " B/みぎボタン : キャンセル",
             " X/ひだりボタン: メニューをひらく",
-            " Y/うえボタン : BGM オン／オフ",
+            " ぜんぶのボタン : リセット",
         ]
         Window.open("opening-guide", 4, 6, 27, 18, texts, True)
         win = Window.selector("opening")
@@ -102,12 +102,12 @@ class App:
             "q": px.btnp(px.KEY_Q, 8, 2) or px.btnp(btn_y, 8, 2),
             "q_": px.btn(px.KEY_Q) or px.btn(btn_y),
         }
-        pressed = btn["s"] or btn["a"]
+        pressed = btn["s"] or btn["a"] or btn["w"]
         # リセット
         if px.btnp(px.KEY_ESCAPE) or (btn["s"] and btn["s"] and btn["w"] and btn["q"]):
             Userdata.reset()
-        # BGMオンオフ切り替え
-        if btn["q"]:
+        # BGMオンオフ切り替え（廃止）
+        if False:  # btn["q"]:
             Sounds.no_bgm = not Sounds.no_bgm
             music = Sounds.next_music or Sounds.cur_music
             Sounds.cur_music = None
