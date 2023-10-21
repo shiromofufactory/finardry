@@ -124,7 +124,7 @@ class Actor:
                 self.prev_dy = self.dy
                 self.dx = 0
                 self.dy = 0
-                if self.reserve_dir is not None:
+                if self.reserve_dir is not None and not self.on_door:
                     self.start_move(self.reserve_x, self.reserve_y)
                     self.dir = self.reserve_dir
                     self.reserve_dir = None
