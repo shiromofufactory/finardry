@@ -1302,7 +1302,7 @@ class App:
                 f"         {util.play_time(self.frames,True)}",
                 "",
                 "",
-                "       〜 Finardy 〜",
+                "       〜 Finardry 〜",
                 "",
                 "     せいさく frenchbread",
                 "    X(＠frenchbread1222)",
@@ -2375,7 +2375,7 @@ class App:
             if not location in self.chambers or not self.chambers[location]:
                 chamber_encount = location
         if self.encount > 100 or chamber_encount:
-            # self.battle = Battle(None, chamber_encount, self.members, self.items, 4)
+            # self.battle = Battle(None, chamber_encount, self.members, self.items, 52)
             self.battle = Battle(pl.z + 1, chamber_encount, self.members, self.items)
             self.start_battle()
             return
