@@ -1873,7 +1873,7 @@ class App:
                         tp += f" {name}"
                         cur_y = lv * 2 + 1 if cur_y is None else cur_y
             texts += ["", tm, tp]
-        if win is None:
+        if not cur_y is None and win is None:
             win = Window.open("menu_spells", 1, 0, 30, 19, texts)
             win.add_cursol([3, 4, 6, 7, 9, 10, 12, 13, 15, 16, 18, 19], [3, 12, 21])
             win.cur_y = cur_y
@@ -1881,8 +1881,7 @@ class App:
         elif win:
             win.texts = texts
         win_guide = Window.get("spells_guide")
-        print(win_guide)
-        if win_guide is None:
+        if win and win_guide is None:
             Window.open("spells_guide", 17, 0, 30, 1)
         return win
 
