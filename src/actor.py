@@ -90,17 +90,18 @@ class Actor:
             if self.on_door:
                 (dx, dy) = (self.prev_dx, self.prev_dy)
                 backmoving = self.backmoving
-            elif btn["u_"] or btn["d_"]:
-                dir = 0 if btn["u_"] else 2
-                (_, dy) = self.set_move(dir)
-                if not btn["r_"] and not btn["l_"]:
-                    self.dir = dir
-            arrow_side = (dy == 0 and dx == 0) or not self.is_real and not self.on_door
-            if btn["r_"] or btn["l_"] and arrow_side:
-                dir = 1 if btn["r_"] else 3
-                (dx, _) = self.set_move(dir)
-                if not btn["u_"] and not btn["d_"]:
-                    self.dir = dir
+            else:
+                if btn["u_"] or btn["d_"]:
+                    dir = 0 if btn["u_"] else 2
+                    (_, dy) = self.set_move(dir)
+                    if not btn["r_"] and not btn["l_"]:
+                        self.dir = dir
+                arrow_side = (dy == 0 and dx == 0) or not self.is_real
+                if btn["r_"] or btn["l_"] and arrow_side:
+                    dir = 1 if btn["r_"] else 3
+                    (dx, _) = self.set_move(dir)
+                    if not btn["u_"] and not btn["d_"]:
+                        self.dir = dir
             self.start_move(dx, dy, False, backmoving)
         if self.moving:
             self.timer = 0

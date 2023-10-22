@@ -1219,10 +1219,13 @@ class App:
                 parm = win.parm
                 if parm == "b1-2":
                     self.go_catsle(8)
-                elif parm == "b1-3":
+                elif parm in ("b1-3", "b2-1", "b2-5", "b2-6"):
                     self.player.dir = 0
                     self.player.backmove()
-                elif parm in ("b1-3", "b2-1", "b2-3", "b2-5", "b2-6", "b4-1", "b4-4"):
+                elif parm in ("b2-3",):
+                    self.player.dir = 2
+                    self.player.backmove()
+                elif parm in ("b4-1", "b4-4"):
                     self.player.backmove()
                 elif parm == "b1-4":
                     Window.message("search")
@@ -2375,6 +2378,7 @@ class App:
         for key in self.events:
             if key == location:
                 if self.do_event(self.events[key].split(",")):
+                    pl.reset_move()
                     return
         # エンカウント
         self.encount += px.rndi(1, 4)
