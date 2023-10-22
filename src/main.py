@@ -45,7 +45,10 @@ class App:
         self.members = []
         self.status_timer = 0
         self.btn_reverse = False
-        Window.message(["Finardryの せかいへ ようこそ！"])
+        texts = ["Finardryの せかいへ ようこそ！"]
+        if not Userdata.save(True, True):
+            texts += ["", "*** けいこく ***", "このブラウザでは セーブができません", "せっていを かくにんしてください"]
+        Window.message(texts)
         texts = [
             "そうさほうほう（キーボード)",
             " じゅうじキー  : いどう、カーソルせんたく",
@@ -1449,7 +1452,7 @@ class App:
             "chambers": self.chambers,
             "frames": self.frames,
         }
-        Userdata.save(data)
+        return Userdata.save(data)
 
     # ロード
     def load_data(self):

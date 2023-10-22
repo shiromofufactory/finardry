@@ -10,22 +10,22 @@ import util
 
 class Userdata:
     # 書き込み
-    def save(data):
+    def save(data, is_test=False):
         try:
             if LOCAL:
-                with open("./local/save.json", "w") as fout:
-                    fout.write(json.dumps(data))
+                if not is_test:
+                    with open("./local/save.json", "w") as fout:
+                        fout.write(json.dumps(data))
             else:
-                window.localStorage.setItem(
-                    "finardry", json.dumps(data).replace(" ", "")
-                )
+                key = "finardryTest" if is_test else "finardry"
+                window.localStorage.setItem(key, json.dumps(data).replace(" ", ""))
                 # url = f"{base}save?id={id}&data={json.dumps(data).replace(' ', '')}"
                 # res = open_url(url).read()
                 # return res.split(",")
-
+            return True
         except:
             print("Save Failed.")
-            return None
+            return False
 
     # 読み込み
     def load():
