@@ -384,12 +384,14 @@ class App:
                     Sounds.sound(7)
                 else:
                     result, cont = self.use_spell(spell, mb)
-                    if cont:
+                    if result:
                         mb.mp[spell.lv] -= 1
-                        self.show_menu_members()
+                        if cont:
+                            self.show_menu_members()
                         self.show_spells()
             elif btn["a"]:
                 Window.close(["menu_spells", "spells_guide"])
+                self.show_menu_info()
             elif btn["w"]:
                 while True:
                     mb_idx = util.loop(mb_idx, 1, len(self.members))
@@ -1594,7 +1596,6 @@ class App:
             parm = None
         Window.close()
         self.menu_visible = True
-        pl = self.player
         texts = [
             " アイテム",
             " じゅもん",
@@ -1606,6 +1607,11 @@ class App:
         win = Window.open("menu", 25, 0, 30, 5, texts).add_cursol()
         win.cur_y = cur_y
         win.parm = parm
+        self.show_menu_info()
+        self.show_menu_members()
+
+    def show_menu_info(self):
+        pl = self.player
         text_light = "あかり" if pl.light else ""
         texts = [
             f"ちか{pl.z+1}かい",
@@ -1619,7 +1625,6 @@ class App:
         if self.scene in [2, 3]:
             texts[0] = "キャッスル"
         Window.open("menu_info", 25, 7, 30, 13, texts)
-        self.show_menu_members()
 
     # メニューウィンドウ（パーティ）
     def show_menu_members(self):
