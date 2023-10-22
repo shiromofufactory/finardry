@@ -820,7 +820,7 @@ class Battle:
                     elif addition == 8 and mb.health < 2:
                         msg = "しびれて うごけなくなった"
                         mb.health = max(mb.health, 2)
-                    elif addition == 7 and not mb.poison:
+                    elif addition == 7 and not mb.poison and mb.health < 3:
                         msg = "どくを うけた"
                         mb.poison = 1
                 if msg and "blows" in mbe:
@@ -1261,7 +1261,7 @@ class Battle:
             for mb in self.members:
                 if mb.health < 4 and mb.job_id != 2:  # シーフは減算しない
                     rate -= util.maxmin(6 + max(mslvs) - mb.lv, 12)
-        print("逃走成功率：", rate)
+        # print("逃走成功率：", rate)
         if rate > px.rndi(0, 99):
             self.message("にげだした‥", "run")
         else:

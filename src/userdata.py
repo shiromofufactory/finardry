@@ -19,9 +19,6 @@ class Userdata:
             else:
                 key = "finardryTest" if is_test else "finardry"
                 window.localStorage.setItem(key, json.dumps(data).replace(" ", ""))
-                # url = f"{base}save?id={id}&data={json.dumps(data).replace(' ', '')}"
-                # res = open_url(url).read()
-                # return res.split(",")
             return True
         except:
             print("Save Failed.")
@@ -34,13 +31,31 @@ class Userdata:
                 return util.load_json("./local/save")
             else:
                 return json.loads(window.localStorage.getItem("finardry"))
-                # url = f"{base}load?id={id}"
-                # return json.loads(open_url(url).read())
         except:
             print("Load Failed.")
             return None
 
-    # リセット（webのみ）
-    def reset():
-        if not LOCAL:
-            window.location.reload()
+    # 書き込み
+    def set_config(data):
+        try:
+            if LOCAL:
+                with open("./local/config.json", "w") as fout:
+                    fout.write(json.dumps(data))
+            else:
+                key = "finardryConfig"
+                window.localStorage.setItem(key, json.dumps(data).replace(" ", ""))
+            return True
+        except:
+            print("Save Failed.")
+            return False
+
+    # 読み込み
+    def get_config():
+        try:
+            if LOCAL:
+                return util.load_json("./local/config")
+            else:
+                return json.loads(window.localStorage.getItem("finardryConfig"))
+        except:
+            print("Load Failed.")
+            return None

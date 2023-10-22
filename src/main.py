@@ -28,8 +28,14 @@ class App:
         # px.image(1).save("../images/image1.png", 1)
         # px.image(2).save("../images/image2.png", 1)
         Window.bdf = BDFRenderer("k8x12S.bdf")
+        self.events = util.load_json("data/events")
+        self.reset()
+        px.run(self.update, self.draw)
+
+    def reset(self):
         Sounds()
         Fade()
+        self.is_reset = False
         self.visible = True
         self.next_scene = None
         self.next_event = False
@@ -38,7 +44,6 @@ class App:
         self.saved_entity = {}
         self.menu_visible = False
         self.rollout = 0
-        self.events = util.load_json("data/events")
         self.player = None
         self.battle = None
         self.scene = None
@@ -55,20 +60,19 @@ class App:
             " Sキー     : けってい",
             " Aキー     : キャンセル",
             " Wキー     : メニューをひらく",
-            " ESCキー   : リセット",
+            " CTRL+ESC: リセット",
             "",
             "そうさほうほう（コントローラ)",
             " じゅうじキー  : いどう、カーソルせんたく",
             " A/したボタン : けってい",
             " B/みぎボタン : キャンセル",
             " X/ひだりボタン: メニューをひらく",
-            " ぜんぶのボタン : リセット",
+            " 4ボタンどうじ : リセット",
         ]
         Window.open("opening-guide", 4, 6, 27, 18, texts, True)
         win = Window.selector("opening")
         win.cur_y = 1 if self.load_data() else 0
         Sounds.bgm("wiz-edge")
-        px.run(self.update, self.draw)
 
     def update(self):
         pl = self.player
@@ -87,28 +91,53 @@ class App:
             btn_y = px.GAMEPAD1_BUTTON_Y
             btn_x = px.GAMEPAD1_BUTTON_X
         btn = {
-            "u_": px.btn(px.KEY_UP) or px.btn(px.GAMEPAD1_BUTTON_DPAD_UP),
-            "d_": px.btn(px.KEY_DOWN) or px.btn(px.GAMEPAD1_BUTTON_DPAD_DOWN),
-            "l_": px.btn(px.KEY_LEFT) or px.btn(px.GAMEPAD1_BUTTON_DPAD_LEFT),
-            "r_": px.btn(px.KEY_RIGHT) or px.btn(px.GAMEPAD1_BUTTON_DPAD_RIGHT),
-            "u": px.btnp(px.KEY_UP, 8, 2) or px.btnp(px.GAMEPAD1_BUTTON_DPAD_UP, 8, 2),
+            "u_": px.btn(px.KEY_UP)
+            or px.btn(px.KEY_K)
+            or px.btn(px.GAMEPAD1_BUTTON_DPAD_UP),
+            "d_": px.btn(px.KEY_DOWN)
+            or px.btn(px.KEY_J)
+            or px.btn(px.GAMEPAD1_BUTTON_DPAD_DOWN),
+            "l_": px.btn(px.KEY_LEFT)
+            or px.btn(px.KEY_H)
+            or px.btn(px.GAMEPAD1_BUTTON_DPAD_LEFT),
+            "r_": px.btn(px.KEY_RIGHT)
+            or px.btn(px.KEY_L)
+            or px.btn(px.GAMEPAD1_BUTTON_DPAD_RIGHT),
+            "u": px.btnp(px.KEY_UP, 8, 2)
+            or px.btnp(px.KEY_K, 8, 2)
+            or px.btnp(px.GAMEPAD1_BUTTON_DPAD_UP, 8, 2),
             "d": px.btnp(px.KEY_DOWN, 8, 2)
+            or px.btnp(px.KEY_J, 8, 2)
             or px.btnp(px.GAMEPAD1_BUTTON_DPAD_DOWN, 8, 2),
             "l": px.btnp(px.KEY_LEFT, 8, 2)
+            or px.btnp(px.KEY_H, 8, 2)
             or px.btnp(px.GAMEPAD1_BUTTON_DPAD_LEFT, 8, 2),
             "r": px.btnp(px.KEY_RIGHT, 8, 2)
+            or px.btnp(px.KEY_L, 8, 2)
             or px.btnp(px.GAMEPAD1_BUTTON_DPAD_RIGHT, 8, 2),
             "s": px.btnp(px.KEY_S, 8, 2) or px.btnp(btn_a, 8, 2),
+            "s_": px.btn(px.KEY_S) or px.btn(btn_a),
             "a": px.btnp(px.KEY_A, 8, 2) or px.btnp(btn_b, 8, 2),
+            "a_": px.btn(px.KEY_A) or px.btn(btn_b),
             "w": px.btnp(px.KEY_W, 8, 2) or px.btnp(btn_x, 8, 2),
             "w_": px.btn(px.KEY_W) or px.btn(btn_x),
             "q": px.btnp(px.KEY_Q, 8, 2) or px.btnp(btn_y, 8, 2),
             "q_": px.btn(px.KEY_Q) or px.btn(btn_y),
         }
         pressed = btn["s"] or btn["a"] or btn["w"]
+        press_reset = (px.btn(px.KEY_ESCAPE) and px.btn(px.KEY_CTRL)) or (
+            btn["s_"] and btn["a_"] and btn["w_"] and btn["q_"]
+        )
         # リセット
-        if px.btnp(px.KEY_ESCAPE) or (btn["s"] and btn["s"] and btn["w"] and btn["q"]):
-            Userdata.reset()
+        if self.is_reset:
+            if not press_reset and not pressed:
+                self.reset()
+            return
+        elif press_reset:
+            px.stop()
+            Window.close()
+            self.is_reset = True
+            return
         # BGMオンオフ切り替え（廃止）
         if False:  # btn["q"]:
             Sounds.no_bgm = not Sounds.no_bgm
