@@ -68,8 +68,9 @@ class App:
             " B/みぎボタン : キャンセル",
             " X/ひだりボタン: メニューをひらく",
             " 4ボタンどうじ : リセット",
+            "                   ver.231023",
         ]
-        Window.open("opening-guide", 4, 6, 27, 18, texts, True)
+        Window.open("opening-guide", 2, 6, 28, 19, texts, True)
         win = Window.selector("opening")
         win.cur_y = 1 if self.load_data() else 0
         Sounds.bgm("wiz-edge")
