@@ -908,13 +908,13 @@ class Battle:
                 elif fx_type == "identify":
                     motion = ((mse["fx_len"] - 1) // 3) % 3
                     if motion == 0:
-                        px.blt(mx + 16, my + 16, 2, 212, 64, 16, 16, 0)
+                        px.blt(mx + 16, my + 16, 2, 240, 64, 16, 16, 0)
                     else:
                         m8 = (2 - motion) * 8
-                        px.blt(mx + m8, my + m8, 2, 144, 64, 16, 16, 0)
-                        px.blt(mx + 32 - m8, my + m8, 2, 160, 64, 16, 16, 0)
-                        px.blt(mx + m8, my + 32 - m8, 2, 176, 64, 16, 16, 0)
-                        px.blt(mx + 32 - m8, my + 32 - m8, 2, 192, 64, 16, 16, 0)
+                        px.blt(mx + m8, my + m8, 2, 176, 64, 16, 16, 0)
+                        px.blt(mx + 32 - m8, my + m8, 2, 192, 64, 16, 16, 0)
+                        px.blt(mx + m8, my + 32 - m8, 2, 208, 64, 16, 16, 0)
+                        px.blt(mx + 32 - m8, my + 32 - m8, 2, 224, 64, 16, 16, 0)
                 elif fx_type in ("damage", "cure", "miss"):  # ダメージ表示
                     value = 0
                     if mse["fx_type"] == "damage":
