@@ -83,7 +83,7 @@ class App:
             "q_": px.btn(px.KEY_Q) or px.btn(btn_y),
         }
         pressed = btn["s"] or btn["a"] or btn["w"]
-        press_reset = (px.btn(px.KEY_ESCAPE) and px.btn(px.KEY_ALT)) or (
+        press_reset = (px.btn(px.KEY_ESCAPE) and px.btn(px.KEY_1)) or (
             btn["s_"] and btn["a_"] and btn["w_"] and btn["q_"]
         )
         # リセット
@@ -1453,7 +1453,7 @@ class App:
             " Sキー     : けってい",
             " Aキー     : キャンセル",
             " Wキー     : メニューをひらく",
-            " ALT+ESC : リセット",
+            " ESC+1キー : リセット",
             "",
             "そうさほうほう（コントローラ)",
             " じゅうじキー  : いどう、カーソルせんたく",
