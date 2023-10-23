@@ -32,49 +32,6 @@ class App:
         self.reset()
         px.run(self.update, self.draw)
 
-    def reset(self):
-        Sounds()
-        Fade()
-        self.is_reset = False
-        self.visible = True
-        self.next_scene = None
-        self.next_event = False
-        self.next_z = None
-        self.next_music_tick = 0
-        self.saved_entity = {}
-        self.menu_visible = False
-        self.rollout = 0
-        self.player = None
-        self.battle = None
-        self.scene = None
-        self.members = []
-        self.status_timer = 0
-        self.btn_reverse = False
-        texts = ["Finardryの せかいへ ようこそ！"]
-        if not Userdata.save(True, True):
-            texts += ["", "*** けいこく ***", "このブラウザでは セーブができません", "せっていを かくにんしてください"]
-        Window.message(texts)
-        texts = [
-            "そうさほうほう（キーボード)",
-            " じゅうじキー  : いどう、カーソルせんたく",
-            " Sキー     : けってい",
-            " Aキー     : キャンセル",
-            " Wキー     : メニューをひらく",
-            " ALT+ESC : リセット",
-            "",
-            "そうさほうほう（コントローラ)",
-            " じゅうじキー  : いどう、カーソルせんたく",
-            " A/したボタン : けってい",
-            " B/みぎボタン : キャンセル",
-            " X/ひだりボタン: メニューをひらく",
-            " 4ボタンどうじ : リセット",
-            "                   ver.231023",
-        ]
-        Window.open("opening-guide", 2, 6, 28, 19, texts, True)
-        win = Window.selector("opening")
-        win.cur_y = 1 if self.load_data() else 0
-        Sounds.bgm("wiz-edge")
-
     def update(self):
         pl = self.player
         bt = self.battle
@@ -203,11 +160,12 @@ class App:
                         self.map_bgm()
                     else:
                         self.scene = 2
+                elif Userdata.is_web():
+                    texts = ["ゲームをはじめるまえに ガイドをかくにんしますか？", "（「はい」をおすと べつタブでガイドがひらきます）"]
+                    Window.message(texts)
+                    win = Window.selector("yn", "new_game")
                 else:
-                    self.show_training()
-                    self.show_place(3)
-                    self.show_training_new()
-                    Window.close("training")
+                    self.start_new_game()
                 self.set_position(self.player.x, self.player.y, self.player.z)
             return
         elif Window.get("popup"):
@@ -1464,7 +1422,58 @@ class App:
         px.blt(120 - x * 8, 128 + y * 8, 0, u * 8, (v + 1) * 8, 8, 8, 3)
         px.blt(128 + x * 8, 128 + y * 8, 0, (u + 1) * 8, (v + 1) * 8, 8, 8, 3)
 
-    ### セーブ・ロード ###
+    ### システム ###
+
+    # リセット
+    def reset(self):
+        Sounds()
+        Fade()
+        self.is_reset = False
+        self.visible = True
+        self.next_scene = None
+        self.next_event = False
+        self.next_z = None
+        self.next_music_tick = 0
+        self.saved_entity = {}
+        self.menu_visible = False
+        self.rollout = 0
+        self.player = None
+        self.battle = None
+        self.scene = None
+        self.members = []
+        self.status_timer = 0
+        self.btn_reverse = False
+        texts = ["Finardryの せかいへ ようこそ！"]
+        if not Userdata.save(True, True):
+            texts += ["", "*** けいこく ***", "このブラウザでは セーブができません", "せっていを かくにんしてください"]
+        Window.message(texts)
+        texts = [
+            "そうさほうほう（キーボード)",
+            " じゅうじキー  : いどう、カーソルせんたく",
+            " Sキー     : けってい",
+            " Aキー     : キャンセル",
+            " Wキー     : メニューをひらく",
+            " ALT+ESC : リセット",
+            "",
+            "そうさほうほう（コントローラ)",
+            " じゅうじキー  : いどう、カーソルせんたく",
+            " A/したボタン : けってい",
+            " B/みぎボタン : キャンセル",
+            " X/ひだりボタン: メニューをひらく",
+            " 4ボタンどうじ : リセット",
+            "                   ver.231023",
+        ]
+        Window.open("opening-guide", 2, 6, 28, 19, texts, True)
+        win = Window.selector("opening")
+        win.cur_y = 1 if self.load_data() else 0
+        Sounds.bgm("wiz-edge")
+
+    # ゲーム初期化
+    def start_new_game(self):
+        self.show_training()
+        self.show_place(3)
+        self.show_training_new()
+        Window.close("training")
 
     # セーブ
     def save_data(self):
@@ -2481,6 +2490,7 @@ class App:
     # はい・いいえ選択
     def select_yn(self, parm, answer):
         Window.close()
+        print(parm)
         if answer:
             if parm[0] == "move":
                 self.do_event(parm)
@@ -2488,6 +2498,10 @@ class App:
                 item = Item(parm[1])
                 Window.message([f"{item.name} をてにいれた"])
                 self.add_item(item)
+            elif parm == "new_game":
+                Userdata.open_guide()
+        if parm == "new_game":
+            self.start_new_game()
 
     ### マップ関連 ###
 

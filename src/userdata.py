@@ -59,3 +59,15 @@ class Userdata:
         except:
             print("Load Failed.")
             return None
+
+    # ウェブ判定
+    def is_web():
+        return not LOCAL
+
+    # ガイドを開く
+    def open_guide():
+        if not LOCAL:
+            window.open(
+                "https://github.com/shiromofufactory/finardry/blob/master/readme.md",
+                "_blank",
+            )
