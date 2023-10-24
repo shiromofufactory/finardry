@@ -573,7 +573,7 @@ class App:
             if btn["s"]:
                 item = Item(self.items[win.cur_y])
                 if item.price == 0:
-                    self.show_shop_msg("そのしなものには いただけませんね")
+                    self.show_shop_msg("そのしなものは いただけませんね")
                     Sounds.sound(7)
                     return
                 self.add_gold(item.price // 2)
