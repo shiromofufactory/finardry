@@ -160,7 +160,7 @@ class App:
                         self.map_bgm()
                     else:
                         self.scene = 2
-                elif Userdata.is_web():
+                elif Userdata.is_web() and not Userdata.is_pwa():
                     texts = ["ゲームをはじめるまえに ガイドをかくにんしますか？", "（「はい」をおすと べつタブでガイドがひらきます）"]
                     Window.message(texts)
                     win = Window.selector("yn", "new_game")

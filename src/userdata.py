@@ -1,6 +1,6 @@
 LOCAL = False
 try:
-    from js import window
+    from js import window, document
 except:
     LOCAL = True
     print("ローカルモード")
@@ -64,10 +64,17 @@ class Userdata:
     def is_web():
         return not LOCAL
 
+    # PWA判定
+    def is_pwa():
+        if LOCAL:
+            return False
+        return window.matchMedia("(display-mode: standalone)").matches
+
     # ガイドを開く
     def open_guide():
-        if not LOCAL:
-            window.open(
-                "https://github.com/shiromofufactory/finardry/blob/master/readme.md",
-                "_blank",
-            )
+        if LOCAL:
+            return
+        window.open(
+            "https://github.com/shiromofufactory/finardry/blob/master/readme.md",
+            "_blank",
+        )
