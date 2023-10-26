@@ -1015,11 +1015,9 @@ class App:
                     failure_rate = max(102 - success_rate, 0) // 3
                     if win_mem.parm == 2:
                         failure_rate = 0
-                    # print(f"調査成功率:{success_rate}")
-                    # print(f"暴発率:{failure_rate}")
-                    # print(f"乱数:{win_mem.cur_value}")
+                    # 罠暴発
                     if not trap is None and failure_rate > win_mem.cur_value:
-                        self.do_trap(trap)
+                        win.parm = self.do_trap(trap)
                         win_mem.has_cur = False
                         return
                     elif success_rate > win_mem.cur_value:
@@ -1074,7 +1072,7 @@ class App:
                     elif trap is None:
                         self.get_treasure()
                     else:
-                        self.do_trap(trap)
+                        win.parm = self.do_trap(trap)
             return
         # 戦闘：勝利
         elif bt and bt.completed:
@@ -1511,7 +1509,7 @@ class App:
             " B/みぎボタン : キャンセル",
             " X/ひだりボタン: メニューをひらく",
             " 4ボタンどうじ : リセット",
-            "                   ver.231023",
+            "                   ver.231026",
         ]
         Window.open("operation_guide", 2, 6, 28, 19, texts, True)
 
@@ -2772,15 +2770,29 @@ class App:
         if bt.seed == 60 and bt.completed:
             self.select_yn(("item", 77), True)
         self.battle = None
-        self.auto_save()
+        if not is_run:
+            self.auto_save()
 
     # 罠にかかった
     def do_trap(self, trap):
         win = Window.get("treasure_msg")
-        win.texts = [f"おおっと！ {const['traps'][trap]}"]
+        texts = [f"おおっと！ {const['traps'][trap]}"]
+        # 盗賊による解除
+        tr = self.battle.treasure
+        if not trap is None:
+            for mb in self.members:
+                if mb.job_id == 2 and mb.health == 0:
+                    success_rate = mb.spd * 3 + mb.lv * 2 - tr.lv * 10
+                    # print(mb.name, "解除率：", success_rate)
+                    if success_rate > px.rndi(0, 99):
+                        texts.append(f"{mb.name}が わなをはずした")
+                        trap = None
+                        break
         if trap == 8:
             Sounds.sound(14)
+        win.texts = texts
         win.parm = True
+        return trap
 
     def get_treasure(self, down=0):
         tr = self.battle.treasure

@@ -4,7 +4,6 @@ import pyxel as px
 from job import Job
 from item import Item
 from spell import Spell
-from sounds import Sounds
 
 jobs = util.load_json("data/jobs")
 const = util.load_json("data/const")
