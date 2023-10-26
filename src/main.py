@@ -91,8 +91,12 @@ class App:
             "q_": px.btn(px.KEY_Q) or px.btn(btn_y),
         }
         pressed = btn["s"] or btn["a"] or btn["w"]
+        if btn["q_"]:
+            self.btn_reset_timer += 1
+        else:
+            self.btn_reset_timer = 0
         press_reset = (px.btn(px.KEY_ESCAPE) and px.btn(px.KEY_1)) or (
-            btn["s_"] and btn["a_"] and btn["w_"] and btn["q_"]
+            self.btn_reset_timer >= 60
         )
         # リセット
         if self.is_reset:
@@ -149,6 +153,15 @@ class App:
                     self.end_battle()
                     self.map_bgm()
             return
+        # 宝箱
+        elif Window.get("reward"):
+            win = Window.get("reward").update_cursol(btn)
+            if btn["s"]:
+                if win.cur_y == 0:
+                    for item in win.parm:
+                        self.add_item(item)
+                self.end_battle()
+            return
         # コンフィグ設定
         elif Window.get("config"):
             win = Window.get("config").update_cursol(btn)
@@ -162,7 +175,6 @@ class App:
                 Userdata.set_config(self.config)
                 if Sounds.no_bgm == self.config["bgm"]:
                     Sounds.no_bgm = not self.config["bgm"]
-                    print(Sounds.no_bgm)
                     Sounds.play()
             return
         # Welcome画面
@@ -918,7 +930,6 @@ class App:
                             Window.message(["ぼうけんしゃたちは ぜんめつした"])
                         else:
                             self.get_treasure(1)
-                            self.set_members_pos()
                             win_msg.parm = None
                         return
                     elif trap == 5:  # テレポート
@@ -1415,7 +1426,7 @@ class App:
             c = bt.flash
             bt.flash = None
         px.cls(c)
-        if not self.visible:
+        if not self.visible or self.is_reset:
             return
         if Fade.dist:  # フェードイン・アウト
             self.visible = Fade.draw()
@@ -1484,6 +1495,7 @@ class App:
         self.members = []
         self.status_timer = 0
         self.btn_reverse = False
+        self.btn_reset_timer = 0
         texts = ["Finardryの せかいへ ようこそ！"]
         if not Userdata.save(True, True):
             texts += ["", "*** けいこく ***", "このブラウザでは セーブができません", "せっていを かくにんしてください"]
@@ -1508,8 +1520,8 @@ class App:
             " A/したボタン : けってい",
             " B/みぎボタン : キャンセル",
             " X/ひだりボタン: メニューをひらく",
-            " 4ボタンどうじ : リセット",
-            "                   ver.231026",
+            " Y/うえボタン : リセット（ながおし２びょう）",
+            "                   ver.231027",
         ]
         Window.open("operation_guide", 2, 6, 28, 19, texts, True)
 
@@ -2799,6 +2811,7 @@ class App:
         win_img = Window.get("treasure_img")
         win_msg = Window.get("treasure_msg")
         rewards = []
+        items = []
         for _ in range(2):
             tg = tr.treasure_group[px.rndi(0, 3)] - down
             if tg > 0 and len(self.items) < 40:
@@ -2809,13 +2822,15 @@ class App:
                     if not item.id in self.stocks or px.rndi(0, 3) == 0:
                         break
                 rewards.append(f" {item.name}")
-                self.add_item(item)
+                items.append(item)
             else:
                 gold = self.add_gold(self.battle.total_gold, 0.4)
                 rewards.append(f" {gold}G")
                 break
         win_msg.texts = ["たからばこのなかには:", " と".join(rewards)]
         win_img.parm = 1
+        if items:
+            Window.selector("reward", items)
 
     # 全滅？
     @property

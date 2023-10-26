@@ -246,6 +246,10 @@ class Window:
             texts = [" たたかう", " たちさる"]
             values = None
             x1, y1, x2, y2 = x - 3, y - 3, x + 2, y - 2
+        elif kind == "reward":
+            texts = [" もっていく", " たちさる"]
+            values = None
+            x1, y1, x2, y2 = x - 3, y - 2, x + 3, y - 1
         elif kind == "opening":
             texts = [" New Game", " Continue", " Config"]
             values = None
