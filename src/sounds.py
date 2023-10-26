@@ -4,14 +4,14 @@ import util
 
 
 class Sounds:
-    def __init__(self):
+    def __init__(self, no_bgm=False):
         Sounds.nocut = False
         Sounds.waiting = False
         Sounds.cur_music = None
         Sounds.next_music = None
         Sounds.musics = {}
         Sounds.tick = None
-        Sounds.no_bgm = False
+        Sounds.no_bgm = no_bgm
         Sounds.loop = False
         path = "musics/"
         files = os.listdir(path)
@@ -51,14 +51,6 @@ class Sounds:
             else:
                 px.sound(ch).set(*sound)
             px.play(ch, ch, loop=loop, tick=tick)
-
-    # BGM同期待ち
-    def wait(music, next_music=None):
-        Sounds.nocut = False
-        Sounds.bgm(music, False)
-        Sounds.waiting = True
-        if next_music:
-            Sounds.next_music = next_music
 
     # 止まっていた曲を再生
     def resume(tick=None):

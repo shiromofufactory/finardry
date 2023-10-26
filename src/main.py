@@ -29,6 +29,14 @@ class App:
         # px.image(2).save("../images/image2.png", 1)
         Window.bdf = BDFRenderer("k8x12S.bdf")
         self.events = util.load_json("data/events")
+        config = Userdata.get_config()
+        if config is None:
+            if Userdata.load():
+                # 既存プレイヤーはオートセーブオフから
+                config = {"bgm": True, "auto_save": False}
+            else:
+                config = {"bgm": True, "auto_save": True}
+        self.config = config
         self.reset()
         px.run(self.update, self.draw)
 
@@ -96,12 +104,6 @@ class App:
             Window.close()
             self.is_reset = True
             return
-        # BGMオンオフ切り替え（廃止）
-        if False:  # btn["q"]:
-            Sounds.no_bgm = not Sounds.no_bgm
-            music = Sounds.next_music or Sounds.cur_music
-            Sounds.cur_music = None
-            Sounds.bgm(music, Sounds.loop)
         # マップ切り替え
         if not self.visible and pl:
             if not self.next_z is None:
@@ -117,12 +119,13 @@ class App:
         # フェード・銭湯突入中・強制音楽は操作を受け付けない
         if Fade.dist or self.rollout:  # or Sounds.waiting:
             return
-        # ウィンドウ処理
+        # ここからウィンドウ処理：はいいいえ
         if "yn" in Window.all:
             win = Window.all["yn"].update_cursol(btn)
             if btn["s"] or btn["a"]:
                 self.select_yn(win.parm, btn["s"] and win.cur_y == 0)
             return
+        # エレベータ
         elif Window.get("ev"):
             win = Window.get("ev").update_cursol(btn)
             if btn["s"]:
@@ -133,6 +136,7 @@ class App:
             if btn["s"] or btn["a"]:
                 Window.close()
             return
+        # ゆうこうてきなモンスター
         elif Window.get("friendly"):
             win = Window.get("friendly").update_cursol(btn)
             if btn["s"]:
@@ -145,11 +149,32 @@ class App:
                     self.end_battle()
                     self.map_bgm()
             return
+        # コンフィグ設定
+        elif Window.get("config"):
+            win = Window.get("config").update_cursol(btn)
+            key = ["bgm", "auto_save"][win.cur_y]
+            if btn["r"] or btn["l"]:
+                self.config[key] = not self.config[key]
+                self.show_config()
+            if btn["s"] or btn["a"]:
+                Window.close("config")
+                self.show_operation_guide()
+                Userdata.set_config(self.config)
+                if Sounds.no_bgm == self.config["bgm"]:
+                    Sounds.no_bgm = not self.config["bgm"]
+                    print(Sounds.no_bgm)
+                    Sounds.play()
+            return
+        # Welcome画面
         elif Window.get("opening"):
             win = Window.get("opening").update_cursol(btn)
             if btn["s"] or btn["a"]:
                 self.btn_reverse = btn["a"]
                 cur_y = win.cur_y
+                if cur_y == 2:  # config
+                    Window.close("operation_guide")
+                    self.show_config()
+                    return
                 Window.close()
                 self.visible = False
                 if cur_y == 0:
@@ -289,6 +314,7 @@ class App:
                         self.gold -= gold
                         self.show_temple(msg)
                     else:
+                        self.set_members_pos()
                         self.show_catsle(2)
             else:  # じゅもん
                 result, cont = False, False
@@ -382,6 +408,13 @@ class App:
                         self.show_spells()
             elif btn["a"]:
                 Window.close(["menu_spells", "spells_guide"])
+                # ステータス異常解消による隊列の戻し
+                saved_name = mb.name
+                self.set_members_pos()
+                win_mb = self.show_menu_members()
+                for idx, mb in enumerate(self.members):
+                    if mb.name == saved_name:
+                        win_mb.cur_y = idx
                 self.show_menu_info()
             elif btn["w"]:
                 while True:
@@ -463,6 +496,8 @@ class App:
                     win.sub_cur_y = None
                 else:
                     win.has_cur = False
+                    if win.parm == 4:
+                        self.set_members_pos(True)
             return
         # メニューウィンドウ
         elif Window.get("menu"):
@@ -505,6 +540,7 @@ class App:
             elif btn["a"]:
                 parm = win.parm
                 Window.close()
+                self.auto_save()
                 self.menu_visible = False
                 if self.scene == 0:
                     self.map_bgm()
@@ -527,7 +563,7 @@ class App:
                     for mb in self.reserves:
                         mb.get_off_equips(self.items)
                     self.members = win_new.values
-                    self.set_members_pos()
+                    self.set_members_pos(True)
                     self.show_catsle(0)
                 else:
                     member = win_old.values[win_old.cur_y]
@@ -620,7 +656,7 @@ class App:
                 is_close = False
                 if btn["s"] and value == 0:
                     self.members.append(member)
-                    self.set_members_pos()
+                    self.set_members_pos(True)
                     is_close = True
                 elif btn["s"] and value == 1:
                     self.reserves.append(member)
@@ -726,6 +762,8 @@ class App:
                             Window.popup("おなじなまえは つけられません")
                             return
                     member.name = name
+                    # ordersのキーが名前なので更新する
+                    self.set_members_pos(True)
                     is_close = True
                 elif value == "A":
                     self.show_training_name(1)
@@ -880,6 +918,7 @@ class App:
                             Window.message(["ぼうけんしゃたちは ぜんめつした"])
                         else:
                             self.get_treasure(1)
+                            self.set_members_pos()
                             win_msg.parm = None
                         return
                     elif trap == 5:  # テレポート
@@ -992,10 +1031,14 @@ class App:
                             result = None
                     if result is None:
                         win_msg.texts = ["* わなは かかっていない *", ""]
+                        win.sub_cur_y = 0
                     else:
                         win_msg.texts = [f"* わなは {const['traps'][result]} *", ""]
+                        win.sub_cur_y = win_mem.parm
                 elif btn["a"]:
                     win_mem.has_cur = False
+                    if not win.sub_cur_y is None:
+                        win.cur_y = win.sub_cur_y
             else:
                 if win_img.parm == 0:
                     win.update_cursol(btn)
@@ -1426,7 +1469,7 @@ class App:
 
     # リセット
     def reset(self):
-        Sounds()
+        Sounds(not self.config["bgm"])
         Fade()
         self.is_reset = False
         self.visible = True
@@ -1447,6 +1490,13 @@ class App:
         if not Userdata.save(True, True):
             texts += ["", "*** けいこく ***", "このブラウザでは セーブができません", "せっていを かくにんしてください"]
         Window.message(texts)
+        self.show_operation_guide()
+        win = Window.selector("opening")
+        win.cur_y = 1 if self.load_data() else 0
+        Sounds.bgm("wiz-edge")
+
+    # 操作ガイド
+    def show_operation_guide(self):
         texts = [
             "そうさほうほう（キーボード)",
             " じゅうじキー  : いどう、カーソルせんたく",
@@ -1463,10 +1513,26 @@ class App:
             " 4ボタンどうじ : リセット",
             "                   ver.231023",
         ]
-        Window.open("opening-guide", 2, 6, 28, 19, texts, True)
-        win = Window.selector("opening")
-        win.cur_y = 1 if self.load_data() else 0
-        Sounds.bgm("wiz-edge")
+        Window.open("operation_guide", 2, 6, 28, 19, texts, True)
+
+    # コンフィグ
+    def show_config(self):
+        win = Window.get("config")
+        bgm_s = "オン" if self.config["bgm"] else "オフ"
+        auto_save_s = "オン" if self.config["auto_save"] else "オフ"
+        texts = [
+            f" BGM    : {bgm_s}",
+            f" オートセーブ : {auto_save_s}",
+            "",
+            " オートセーブを オンにすると",
+            " メニューを とじたときや",
+            " せんとうしゅうりょうじ などに",
+            " じどうてきに セーブされます",
+        ]
+        if win:
+            win.texts = texts
+        else:
+            Window.open("config", 8, 7, 23, 14, texts).add_cursol([0, 1])
 
     # ゲーム初期化
     def start_new_game(self):
@@ -1487,6 +1553,7 @@ class App:
             "light": pl.light,
             "members": [member.zip for member in self.members],
             "reserves": [member.zip for member in self.reserves],
+            "orders": self.orders,
             "items": self.items,
             "gold": self.gold,
             "stocks": self.stocks,
@@ -1495,6 +1562,13 @@ class App:
             "frames": self.frames,
         }
         return Userdata.save(data)
+
+    # オートセーブ
+    def auto_save(self):
+        if self.config["auto_save"]:
+            print("オートセーブ実施")
+            self.save_data()
+        return self.config["auto_save"]
 
     # ロード
     def load_data(self):
@@ -1511,6 +1585,7 @@ class App:
                     "light": data["light"],
                 }
             )
+            self.orders = data["orders"] if "orders" in data else []
             self.members = [Member(member) for member in data["members"]]
             self.reserves = [Member(reserve) for reserve in data["reserves"]]
             self.items = data["items"]
@@ -1528,6 +1603,7 @@ class App:
     def init_data(self):
         self.player = Actor({"x": 1, "y": 39, "z": -1, "dir": 0})
         self.members = []
+        self.orders = []
         self.reserves = []
         self.items = []
         self.gold = 600
@@ -1584,11 +1660,24 @@ class App:
         return member
 
     # メンバー整列と先頭キャラ設定
-    def set_members_pos(self):
+    def set_members_pos(self, set_orders=False):
         if len(self.members):
+            if set_orders:
+                self.orders = []
+            if len(self.orders) == len(self.members):
+                members = []
+                for order in self.orders:
+                    for member in self.members:
+                        if member.name == order:
+                            members.append(member)
+                self.members = members
             self.members.sort(key=lambda u: u.health)
+            orders = []
             for i, member in enumerate(self.members):
                 member.pos = 0 if i < 3 else 1
+                orders.append(member.name)
+            if set_orders:
+                self.orders = orders
             self.player.chr = self.members[0].job_id - 1
 
     # メンバーならびかえ
@@ -1603,6 +1692,7 @@ class App:
                 self.members[idx2],
                 self.members[idx1],
             )
+            self.orders = []
             self.set_members_pos()
         else:
             Sounds.sound(7)
@@ -1647,9 +1737,10 @@ class App:
             " そうび",
             " ステータス",
             " ならびかえ",
-            " セーブ",
         ]
-        win = Window.open("menu", 25, 0, 30, 5, texts).add_cursol()
+        if not self.config["auto_save"]:
+            texts.append(" セーブ")
+        win = Window.open("menu", 25, 0, 30, len(texts) - 1, texts).add_cursol()
         win.cur_y = cur_y
         win.parm = parm
         self.show_menu_info()
@@ -1667,9 +1758,15 @@ class App:
             "プレイじかん",
             f" {util.play_time(self.frames)}",
         ]
+        if self.config["auto_save"]:
+            y1 = 6
+            y2 = 12
+        else:
+            y1 = 7
+            y2 = 13
         if self.scene in [2, 3]:
             texts[0] = "キャッスル"
-        Window.open("menu_info", 25, 7, 30, 13, texts)
+        Window.open("menu_info", 25, y1, 30, y2, texts)
 
     # メニューウィンドウ（パーティ）
     def show_menu_members(self):
@@ -1689,7 +1786,7 @@ class App:
                 str_mp,
                 "",
             ]
-        Window.open("menu_members", 1, 0, 22, 19, texts)
+        return Window.open("menu_members", 1, 0, 22, 19, texts)
 
     # ターゲット選択
     def show_select_members(self, parm=None, x=8, y=4):
@@ -1970,7 +2067,6 @@ class App:
             result = target.health in (1, 2)
             if result:
                 target.health = 0
-                self.set_members_pos()
                 Sounds.sound(9)
         elif id == 27:  # ラテュモフィス
             result = target.poison
@@ -1984,12 +2080,10 @@ class App:
             if result:
                 target.poison = 0
                 target.health = 0
-                self.set_members_pos()
                 Sounds.sound(9)
         elif id in (28, 34):  # ディ、カドルト
             result = target.revive(id == 34)
             if result:
-                self.set_members_pos()
                 Sounds.sound(9)
         elif id in (6, 18):  # デュマピック、マロール
             if id == 18 and pl.z == 5:
@@ -2394,7 +2488,6 @@ class App:
                 member.health = 0
             if health != member.health:
                 self.set_members_pos()
-                return
         # ミルワ歩数減少
         if pl.light > 0:
             pl.light -= 1
@@ -2426,7 +2519,7 @@ class App:
             if not location in self.chambers or not self.chambers[location]:
                 chamber_encount = location
         if self.encount > 100 or chamber_encount:
-            # self.battle = Battle(None, chamber_encount, self.members, self.items, 52)
+            # self.battle = Battle(None, chamber_encount, self.members, self.items, 8)
             self.battle = Battle(pl.z + 1, chamber_encount, self.members, self.items)
             self.start_battle()
             return
@@ -2490,7 +2583,6 @@ class App:
     # はい・いいえ選択
     def select_yn(self, parm, answer):
         Window.close()
-        print(parm)
         if answer:
             if parm[0] == "move":
                 self.do_event(parm)
@@ -2533,6 +2625,7 @@ class App:
             if self.next_event == True:
                 self.moved()
                 self.next_event = False
+            self.auto_save()
 
     # 透明モードセット（デュマピック、マロール）
     def set_transparent(self, member, spell_id, item_id):
@@ -2630,6 +2723,7 @@ class App:
                 self.change_scene(4)
         else:
             self.change_scene(2)
+        self.auto_save()
 
     # ランダムワープ（戦闘中マロール、宝箱テレポート）
     def teleport(self, sound_id=8):
@@ -2678,6 +2772,7 @@ class App:
         if bt.seed == 60 and bt.completed:
             self.select_yn(("item", 77), True)
         self.battle = None
+        self.auto_save()
 
     # 罠にかかった
     def do_trap(self, trap):

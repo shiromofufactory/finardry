@@ -247,9 +247,9 @@ class Window:
             values = None
             x1, y1, x2, y2 = x - 3, y - 3, x + 2, y - 2
         elif kind == "opening":
-            texts = [" New Game", " Continue"]
+            texts = [" New Game", " Continue", " Config"]
             values = None
-            x1, y1, x2, y2 = x - 6, y - 3, x + 3, y - 2
+            x1, y1, x2, y2 = x - 6, y - 4, x + 3, y - 2
         win = cls.open(kind, x1, y1, x2, y2, texts).add_cursol()
         win.values = values
         win.parm = parm
