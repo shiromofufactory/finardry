@@ -2811,7 +2811,7 @@ class App:
         win_img = Window.get("treasure_img")
         win_msg = Window.get("treasure_msg")
         rewards = []
-        items = []
+        reward_items = []
         for _ in range(2):
             tg = tr.treasure_group[px.rndi(0, 3)] - down
             if tg > 0 and len(self.items) < 40:
@@ -2822,15 +2822,15 @@ class App:
                     if not item.id in self.stocks or px.rndi(0, 3) == 0:
                         break
                 rewards.append(f" {item.name}")
-                items.append(item)
+                reward_items.append(item)
             else:
                 gold = self.add_gold(self.battle.total_gold, 0.4)
                 rewards.append(f" {gold}G")
                 break
         win_msg.texts = ["たからばこのなかには:", " と".join(rewards)]
         win_img.parm = 1
-        if items:
-            Window.selector("reward", items)
+        if reward_items:
+            Window.selector("reward", reward_items)
 
     # 全滅？
     @property
