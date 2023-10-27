@@ -2073,6 +2073,8 @@ class App:
                 if item_id is not None:
                     description = f"{target.name}  HP:{util.pad(target.hp,3)}/{util.pad(target.mhp,3)}"
                 Sounds.sound(9)
+            else:
+                result = False
         elif id == 22:  # ディアルコ
             result = target.health in (1, 2)
             if result:

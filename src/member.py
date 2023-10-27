@@ -300,7 +300,7 @@ class Member:
 
     # HP回復
     def add_hp(self, val=None):
-        if self.hp >= self.mhp:
+        if self.hp >= self.mhp or self.health == 4:
             return False
         if val is None:
             self.hp = self.mhp
