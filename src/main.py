@@ -927,6 +927,7 @@ class App:
                 if btn["s"] or btn["a"]:
                     if trap == None:
                         if self.no_living:
+                            self.end_battle()
                             Window.message(["ぼうけんしゃたちは ぜんめつした"])
                         else:
                             self.get_treasure(1)
