@@ -523,6 +523,16 @@ class Battle:
         # 行動を決定
         elif not "command" in self.action:
             command = None
+            avoid_atc = False
+            if self.seed == 40:  # ワードナ再戦特殊
+                avoid_atc = True
+                for idx, mb in enumerate(self.members):
+                    if (
+                        idx in self.members_vanguard_idxs
+                        and mb.health < 2
+                        and mb.ac > -8
+                    ):
+                        avoid_atc = False
             if "逃" in ms.actions:
                 mslv_sum = 0
                 for tmp_ms in self.monsters:
@@ -543,19 +553,20 @@ class Battle:
                 ):
                     command = "call"
                     self.action["call"] = call_idx
-            if not command and "息" in ms.actions:
-                if px.rndi(0, 9) < 5:
-                    command = "breath"
-            if not command and "毒" in ms.actions:
-                if px.rndi(0, 9) < 5:
-                    command = "poison"
+            if not ms.id == 40 or ms.hp > ms.mhp / 2:
+                if not command and "息" in ms.actions:
+                    if px.rndi(0, 9) < 5:
+                        command = "breath"
+                if not command and "毒" in ms.actions:
+                    if px.rndi(0, 9) < 5:
+                        command = "poison"
             if (
                 not command
                 and not ms.silent
                 and (ms.spell_m or ms.spell_p)
                 and not self.suprise
             ):
-                rate = 5 if self.action["can_atc"] else 10
+                rate = 5 if self.action["can_atc"] and not avoid_atc else 10
                 # print(f"呪文発動判定 確率:{rate}")
                 if px.rndi(0, 9) < rate:
                     command = "spell"

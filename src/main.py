@@ -1862,7 +1862,9 @@ class App:
     def item_guide(self, idx):
         item = Item(self.items[idx])
         texts = []
-        texts.append(const["item_type"][item.type])
+        texts.append(
+            f"{util.spacing(const['item_type'][item.type],17)}しょじすう {len(self.items)}/40"
+        )
         if item.type == 0:
             if item.use:
                 spell = Spell(item.use)
@@ -2587,8 +2589,15 @@ class App:
             if location in self.chambers:
                 return False
             seed = int(values[1])
-            if seed == 60 and self.has_item(77):
-                return  # ワードナ不在
+            if seed == 60:
+                exist_imperial = False
+                for mb in self.members + self.reserves:
+                    if mb.imperial:
+                        exist_imperial = True
+                if self.has_item(77):
+                    return  # ワードナ不在
+                elif exist_imperial:
+                    seed = 40
             self.battle = Battle(False, location, self.members, self.items, seed)
             self.start_battle()
         return True
@@ -2760,7 +2769,7 @@ class App:
 
     # 戦闘開始
     def start_battle(self):
-        bgm = "wiz-battle2" if self.battle.seed == 60 else "wiz-battle1"
+        bgm = "wiz-battle2" if self.battle.seed in (40, 60) else "wiz-battle1"
         Sounds.cur_music = None
         self.next_music_tick = 0
         Sounds.bgm("wiz-encount", False, bgm)
@@ -2782,7 +2791,7 @@ class App:
             mb.silent = False
         self.set_members_pos()
         self.change_scene(0)
-        if bt.seed == 60 and bt.completed:
+        if bt.seed in (40, 60) and bt.completed:
             self.select_yn(("item", 77), True)
         self.battle = None
         if not is_run:
