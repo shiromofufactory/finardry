@@ -1223,7 +1223,7 @@ class App:
                 if btn["s"]:
                     if win.cur_value == 1:  # 逃走は即発動
                         win.close("battle_command")
-                        bt.run()
+                        bt.run(mb_idx)
                         return
                     bt.commands.append(
                         {"action": win.cur_value, "target": None, "members": None}

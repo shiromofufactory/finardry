@@ -532,16 +532,16 @@
     "name": "カドルト",
     "type": 2,
     "lv": 5,
-    "on_battle": 0,
+    "on_battle": 1,
     "on_camp": 1,
     "use_enemy": 0,
     "target": 1,
     "attr": 0,
     "intensity": 0,
-    "fx": 0,
-    "fx_len": 0,
-    "sound": 0,
-    "description": "しぼうしたみかたを\nかんぜんに ふっかつさせる"
+    "fx": "angel",
+    "fx_len": 18,
+    "sound": 22,
+    "description": "しぼうしたみかたを ぜんかい\nせんとうちゅうも つかえる"
   },
   {
     "id": 35,

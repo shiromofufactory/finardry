@@ -342,8 +342,8 @@ class Battle:
                     mbe = self.members_effection[idx]
                     if mbe["action"] == "cure":
                         mbe["fx_type"] = "cure"
-                        mbe["fx_len"] = 1
-                        fx_len = 1
+                        mbe["fx_len"] = 16
+                        fx_len = 16
                 for idx in self.monsters_effection:
                     ms = self.monsters[idx]
                     mse = self.monsters_effection[idx]
@@ -364,7 +364,8 @@ class Battle:
         sound_id = None
         for idx in self.members_idxs(False, True):
             target = self.members[idx]
-            if cmd["members"] in (idx, -1) and target.health < 4:
+            health_cond = (4,) if spell.id == 34 else (0, 1, 2, 3)
+            if cmd["members"] in (idx, -1) and (target.health in health_cond):
                 sound_id = spell.sound
                 if spell.id in (19, 25):
                     self.members_effection[idx] = {
@@ -389,6 +390,13 @@ class Battle:
                         "action": "cure",
                         "cure_poison": True,
                         "cure": 0,
+                    }
+                elif spell.id == 34:  # カドルト
+                    self.members_effection[idx] = {
+                        "action": "cure",
+                        "cure_poison": True,
+                        "cure_health": 4,
+                        "cure": target.mhp - target.hp,
                     }
                 elif spell.id in (3, 9) and target.health < 3:
                     self.members_effection[idx] = {
@@ -469,8 +477,6 @@ class Battle:
         for idx in self.members_effection:
             mb = self.members[idx]
             mbe = self.members_effection[idx]
-            if "cure" in mbe:
-                mb.add_hp(mbe["cure"])
             if "shield" in mbe:
                 # -10より小さくならないように抑える
                 mb.ac_tmp = max(mb.ac_tmp - mbe["shield"], -10 - mb.ac + mb.ac_tmp)
@@ -482,6 +488,8 @@ class Battle:
                     mb.health = 0
                 if mbe["cure_health"] > 2:
                     mb.silent = False
+            if "cure" in mbe:
+                mb.add_hp(mbe["cure"])
             if "warp" in mbe:
                 self.warp = mbe["warp"]
         for idx in self.monsters_effection:
@@ -858,12 +866,16 @@ class Battle:
     # ターン開始
     def start_turn(self):
         if self.members_vanguard_idxs:
-            v_idx = max(self.members_vanguard_idxs)
+            old_idxs = self.members_vanguard_idxs
             self.members_vanguard_idxs = self.members_idxs(True, True)
-            while v_idx < max(self.members_vanguard_idxs):
-                v_idx += 1
-                if self.members[v_idx].health == 0:
-                    self.members[v_idx].fx = ["persuaded", 4]
+            for idx, mb in enumerate(self.members):
+                if mb.health == 0:
+                    if not idx in old_idxs and idx in self.members_vanguard_idxs:
+                        mb.fx = ["persuaded", 4]
+                    if idx in old_idxs and not idx in self.members_vanguard_idxs:
+                        print("ぜんしん")
+                        mb.fx = ["forward", 4]
+                        self.move_backward(idx)
         self.commands = []
         self.find_active_member(0)
         if len(self.commands) < len(self.members):
@@ -1094,13 +1106,16 @@ class Battle:
             if fx_len < 8:
                 pat = 3
                 y = my + min(fx_len, 6) * 4
-                w = 16
+                w = -16 if is_member else 16
             else:
                 pat = (2, 2, 2, 2, 2, 1, 0, 2, 2, 1, 0)[fx_len - 8]
                 y = my + 24
-                w = -16
+                w = 16 if is_member else -16
             u, v = 192 + pat * 16, 208
-            px.blt(mx + 48, y, 2, u, v, w, 16, 0)
+            x = mx - 24 if is_member else mx + 48
+            if is_member:
+                y -= 24
+            px.blt(x, y, 2, u, v, w, 16, 0)
         elif fx_type in ("bomb1", "bomb2"):
             pat = (24 - fx_len // 2) % 4
             x, y = (mx - 16, my - 12) if is_member else (mx + 8, my + 8)
@@ -1265,7 +1280,7 @@ class Battle:
             return command
 
     # 逃走
-    def run(self):
+    def run(self, mb_idx):
         rate = 0 if self.seed == 60 else 100
         mslvs = [ms.lv for ms in self.monsters if ms.is_live and not ms.sleeping]
         if not self.preemptive and mslvs:
@@ -1277,7 +1292,7 @@ class Battle:
             self.message("にげだした‥", "run")
         else:
             self.message("にげられない！")
-            self.move_backward(0)
+            self.move_backward(mb_idx)
             self.commands = []
             self.phase = "action"
 
@@ -1379,9 +1394,9 @@ class Battle:
         return 5 + fx[2] * 2 - fx[1]
 
     # メンバー準備
-    def set_selector_members(self):
+    def set_selector_members(self, resuscitation=False):
         self.selector_items = [
-            idx for idx, mb in enumerate(self.members) if mb.health < 4
+            idx for idx, mb in enumerate(self.members) if mb.health < 4 or resuscitation
         ]
         self.selected_member = self.selector_items[0]
 
@@ -1397,7 +1412,8 @@ class Battle:
             self.selector_items = [mb_idx]
             self.selected_member = mb_idx
         elif spell.target in (1, 2):
-            self.set_selector_members()
+            resuscitation = spell.id == 34
+            self.set_selector_members(resuscitation)
             if spell.target == 2:
                 self.selected_member = -1
         elif spell.target in (3, 4):
