@@ -25,6 +25,8 @@ class Battle:
                     id = ms_in_floor[px.rndi(0, len(ms_in_floor) - 1)]
             elif seed.follow_rate >= px.rndi(0, 255):
                 id = seed.following
+            elif seed_id == 40 and len(monsters) < 5:
+                pass
             else:
                 break
             seed = Monster(id)
@@ -561,13 +563,12 @@ class Battle:
                 ):
                     command = "call"
                     self.action["call"] = call_idx
-            if not ms.id == 40 or ms.hp > ms.mhp / 2:
-                if not command and "息" in ms.actions:
-                    if px.rndi(0, 9) < 5:
-                        command = "breath"
-                if not command and "毒" in ms.actions:
-                    if px.rndi(0, 9) < 5:
-                        command = "poison"
+            if not command and "息" in ms.actions:
+                if px.rndi(0, 9) < 5:
+                    command = "breath"
+            if not command and "毒" in ms.actions:
+                if px.rndi(0, 9) < 5:
+                    command = "poison"
             if (
                 not command
                 and not ms.silent
