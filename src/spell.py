@@ -59,7 +59,7 @@ class Spell:
             rate = base_rate
         elif self.id == 12:  # マカニトはレベル依存＋アンデットには効かない
             rate = 20 if you.lv <= 7 and not is_undead else 0
-        elif self.id in (17, 29):  # ラカニトはアンデットには効かない
+        elif self.id in (17, 29):  # ラカニト、バディはアンデットには効かない
             rate = base_rate if not is_undead else 0
         elif self.id == 15:  # ジルワンはアンデットのみ高確率
             rate = base_rate + 10 if is_undead else 0
