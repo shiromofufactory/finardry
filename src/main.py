@@ -2702,10 +2702,11 @@ class App:
     def go_catsle(self, snd_id=5):
         Window.close()
         # 善悪混在時の処理
-        first_nature = self.members[0].nature
-        exclude_nature = 4 - first_nature if first_nature in (1, 3) else 0
         members = []
+        exclude_nature = None
         for member in self.members:
+            if exclude_nature is None and member.nature in (1, 3):
+                exclude_nature = 4 - member.nature
             if member.nature == exclude_nature:
                 self.reserves.append(member)
             else:
