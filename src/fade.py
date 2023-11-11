@@ -10,6 +10,7 @@ class Fade:
     def __init__(self):
         Fade.state = 0
         Fade.dist = 0
+        Fade.draw()
 
     def start(is_out=False):
         Fade.state = 5 if is_out else 0
@@ -30,6 +31,8 @@ class Fade:
             else:
                 clist = [c for c in range(16)]
                 Fade.dist = 0
-            for c in range(16):
-                px.pal(c, clist[c])
+        else:
+            clist = [c for c in range(16)]
+        for c in range(16):
+            px.pal(c, clist[c])
         return visible
