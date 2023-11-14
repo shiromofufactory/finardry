@@ -179,6 +179,8 @@ class App:
             return
         # Welcome画面
         elif Window.get("opening"):
+            if px.play_pos(0) is None:
+                Sounds.bgm("wiz-edge")
             win = Window.get("opening").update_cursol(btn)
             if btn["s"] or btn["a"]:
                 self.btn_reverse = btn["a"]
@@ -1504,7 +1506,6 @@ class App:
         self.show_operation_guide()
         win = Window.selector("opening")
         win.cur_y = 1 if self.load_data() else 0
-        Sounds.bgm("wiz-edge")
 
     # 操作ガイド
     def show_operation_guide(self):
@@ -1592,7 +1593,7 @@ class App:
                     "y": data["y"],
                     "z": data["z"],
                     "dir": data["dir"],
-                    "mapped": data["mapped"],
+                    "mapped": data["mapped"] if "mapped" in data else None,
                     "light": data["light"],
                 }
             )
@@ -1607,6 +1608,7 @@ class App:
             self.frames = data["frames"]
             success = True
         except:
+            print("不正なセーブデータです")
             self.init_data()
         self.set_members_pos()
         return success

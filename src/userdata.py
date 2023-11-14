@@ -6,19 +6,30 @@ except:
     print("ローカルモード")
 import json
 import util
+from datetime import datetime, timedelta
+import re
 
 
 class Userdata:
     # 書き込み
     def save(data, is_test=False):
         try:
+            data_str = json.dumps(data).replace(" ", "")
             if LOCAL:
                 if not is_test:
                     with open("./local/save.json", "w") as fout:
-                        fout.write(json.dumps(data))
+                        fout.write(data_str)
+            elif is_test:
+                window.localStorage.setItem("finardryTest", data_str)
             else:
-                key = "finardryTest" if is_test else "finardry"
-                window.localStorage.setItem(key, json.dumps(data).replace(" ", ""))
+                window.localStorage.setItem("finardry", data_str)
+                future_date = datetime.now() + timedelta(days=10 * 365)  # 10年後
+                expires_str = future_date.strftime("%a, %d %b %Y %H:%M:%S GMT")
+                modified_data = re.sub(r'"mapped":".*?",', "", data_str)
+                cookie_str = f"finardry={modified_data}; expires={expires_str}; path=/"
+                print(cookie_str)
+                document.cookie = cookie_str
+                print(document.cookie)
             return True
         except:
             print("Save Failed.")
@@ -32,7 +43,11 @@ class Userdata:
             else:
                 return json.loads(window.localStorage.getItem("finardry"))
         except:
-            print("Load Failed.")
+            if not LOCAL:
+                match = re.search(r"finardry=([^;]+)", document.cookie)
+                if match:
+                    load_data = match.group(1)
+                    return json.loads(load_data)
             return None
 
     # 書き込み

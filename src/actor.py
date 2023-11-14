@@ -28,7 +28,7 @@ class Actor:
         for i in range(6):
             with open(f"./maps/b{i+1}.txt", "r") as fin:
                 self.map_cells.append(fin.readlines())
-        if "mapped" in actor:
+        if "mapped" in actor and actor["mapped"]:
             self.mapped = self.unzip(actor["mapped"])
         else:
             self.mapped = [
