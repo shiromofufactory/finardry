@@ -168,7 +168,7 @@ class Battle:
                     mb.fx = None
                 if mb.health == 1 and px.rndi(0, 4) < 2:
                     mb.health = 0
-                if len(self.monsters_idxs()) != 0
+                if len(self.monsters_idxs()) != 0:
                     damage = 0
                     if mb.poison:
                         damage += -(-mb.mhp // 16)
