@@ -168,25 +168,26 @@ class Battle:
                     mb.fx = None
                 if mb.health == 1 and px.rndi(0, 4) < 2:
                     mb.health = 0
-                damage = 0
-                if mb.poison:
-                    damage += -(-mb.mhp // 16)
-                if mb.healing and mb.health < 4:
-                    damage -= mb.healing
-                if damage > 0:
-                    mb.lost_hp(damage)
-                    self.members_effection[idx] = {
-                        "damage": damage,
-                        "fx_type": "damage",
-                        "fx_len": 16,
-                    }
-                elif damage < 0:
-                    mb.add_hp(-damage)
-                    self.members_effection[idx] = {
-                        "cure": -damage,
-                        "fx_type": "cure",
-                        "fx_len": 16,
-                    }
+                if len(self.monsters_idxs()) != 0
+                    damage = 0
+                    if mb.poison:
+                        damage += -(-mb.mhp // 16)
+                    if mb.healing and mb.health < 4:
+                        damage -= mb.healing
+                    if damage > 0:
+                        mb.lost_hp(damage)
+                        self.members_effection[idx] = {
+                            "damage": damage,
+                            "fx_type": "damage",
+                            "fx_len": 16,
+                        }
+                    elif damage < 0:
+                        mb.add_hp(-damage)
+                        self.members_effection[idx] = {
+                            "cure": -damage,
+                            "fx_type": "cure",
+                            "fx_len": 16,
+                        }
             for ms in self.monsters:
                 ms.sleeping = max(ms.sleeping - 1, 0)
         # ターン頭のボタンプレス待ち
