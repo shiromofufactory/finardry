@@ -2599,7 +2599,7 @@ class App:
                     if mb.imperial:
                         exist_imperial = True
                 if self.has_item(77):
-                    return  # ワードナ不在
+                    seed = 59
                 elif exist_imperial:
                     seed = 40
             self.battle = Battle(False, location, self.members, self.items, seed)
