@@ -2585,6 +2585,8 @@ class App:
                     return False
                 else:
                     Sounds.sound(14)
+            elif values[1] == "b6-3" and self.has_item(77):
+                values[1] = "b6-3w"
             Window.message(values[1]).parm = values[1]
         elif values[0] == "battle":
             location = f"{pl.x},{pl.y},{pl.z}"
