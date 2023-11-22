@@ -459,8 +459,8 @@ class App:
                 self.show_equips()
             else:
                 win.update_cursol(btn)
-                if btn["r"] or btn["l"]:
-                    dist = 1 if btn["r"] else -1
+                if btn["r"] or btn["l"] or btn["w"]:
+                    dist = -1 if btn["l"] else 1
                     win.parm = util.loop(win.parm, dist, len(self.members))
                     self.show_equips()
                 else:
@@ -480,7 +480,7 @@ class App:
         # ステータスウィンドウ
         elif "menu_detail" in Window.all:
             win = Window.all["menu_detail"]
-            if btn["s"] or btn["r"] or btn["l"] or btn["u"] or btn["d"]:
+            if btn["s"] or btn["w"] or btn["r"] or btn["l"] or btn["u"] or btn["d"]:
                 dist = -1 if btn["l"] or btn["u"] else 1
                 win.parm = util.loop(win.parm, dist, len(self.members))
                 self.show_detail()
