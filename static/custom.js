@@ -3,6 +3,7 @@ function isSafari() {
   return (
     userAgent.includes("safari") &&
     !userAgent.includes("chrome") &&
+    !userAgent.includes("crios") &&
     !userAgent.includes("chromium") &&
     !userAgent.includes("edg")
   )
