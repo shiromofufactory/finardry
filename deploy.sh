@@ -7,11 +7,16 @@ NEW="<!DOCTYPE html><meta charset='UTF-8'><meta property='og:title' content='Fin
 OLD_ESCAPED=$(echo "$OLD" | sed 's/[\/&]/\\&/g')
 NEW_ESCAPED=$(echo "$NEW" | sed 's/[\/&]/\\&/g')
 sed -i '' "s/${OLD_ESCAPED}/${NEW_ESCAPED}/g" public/index.html
+OLD="https://cdn.jsdelivr.net/gh/kitao/pyxel/wasm/"
+NEW="/"
+OLD_ESCAPED=$(echo "$OLD" | sed 's/[\/&]/\\&/g')
+NEW_ESCAPED=$(echo "$NEW" | sed 's/[\/&]/\\&/g')
+sed -i '' "s/${OLD_ESCAPED}/${NEW_ESCAPED}/g" public/index.html
 cp public/index.html public/nopad.html
 OLD="gamepad: \"enabled\""
 NEW="gamepad: \"disabled\""
 sed -i '' "s/${OLD}/${NEW}/g" public/nopad.html
-cp static/* public/
+cp -r static/* public/
 cp -r src/musics public/
 cp -r src/data public/
 cp -r src/maps public/

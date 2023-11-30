@@ -7,7 +7,12 @@ NEW="<!DOCTYPE html><meta charset='UTF-8'><meta property='og:title' content='Fin
 OLD_ESCAPED=$(echo "$OLD" | sed 's/[\/&]/\\&/g')
 NEW_ESCAPED=$(echo "$NEW" | sed 's/[\/&]/\\&/g')
 sed -i '' "s/${OLD_ESCAPED}/${NEW_ESCAPED}/g" public/index.html
-cp static/* public/
+OLD="https://cdn.jsdelivr.net/gh/kitao/pyxel/wasm/"
+NEW="/"
+OLD_ESCAPED=$(echo "$OLD" | sed 's/[\/&]/\\&/g')
+NEW_ESCAPED=$(echo "$NEW" | sed 's/[\/&]/\\&/g')
+sed -i '' "s/${OLD_ESCAPED}/${NEW_ESCAPED}/g" public/index.html
+cp -r static/* public/
 cp -r src/musics public/
 cp -r src/data public/
 cp -r src/maps public/
