@@ -44,7 +44,7 @@ class App:
         pl = self.player
         bt = self.battle
         # フレームカウント
-        if pl:
+        if pl and not self.scene is None:
             self.frames += 1
         if self.btn_reverse:
             btn_a = px.GAMEPAD1_BUTTON_B
