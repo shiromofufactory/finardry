@@ -49,7 +49,7 @@ class Member:
             self.mhp = member["mhp"]
             self.mmp = member["mmp"]
             self.mp = member["mp"]
-            self.spells = member["spells"]
+            self.spells = member["spells"] if "spells" in member else []
 
     @property
     def zip(self):

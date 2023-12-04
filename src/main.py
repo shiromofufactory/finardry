@@ -37,6 +37,8 @@ class App:
             else:
                 config = {"bgm": True, "auto_save": True}
         self.config = config
+        self.save_code = None
+        self.password = None
         self.reset()
         px.run(self.update, self.draw)
 
@@ -162,19 +164,83 @@ class App:
                         self.add_item(item)
                 self.end_battle()
             return
+        # クラウドセーブ・ロード
+        elif Window.get("save_code"):
+            win = Window.get("save_code").update_cursol(btn)
+            self.show_save_code()
+            parm = win.parm
+            is_delete = False
+            win_cfg = Window.get("config")
+            if btn["s"]:
+                if win.cur_x == 5 and win.cur_y == 0:
+                    is_delete = True
+                elif win.cur_x == 5 and win.cur_y == 1:
+                    if len(parm) == 6:
+                        save_code = "".join(parm)
+                        data = Userdata.load_cloud(save_code)
+                        Window.close("save_code")
+                        if data is None:
+                            win_cfg.parm = ["セーブコードが まちがっています"]
+                        else:
+                            self.load_data(data)
+                            win_cfg.parm = ["サーバーから", "データをロードしました"]
+                    else:
+                        Sounds.sound(7)
+                else:
+                    letter = ["01234", "56789"][win.cur_y][win.cur_x]
+                    if len(parm) < 6:
+                        parm.append(letter)
+                    if len(parm) == 6:
+                        win.cur_x = 5
+                        win.cur_y = 1
+            if btn["a"] or is_delete:
+                if len(parm) > 0:
+                    parm.pop(-1)
+                elif btn["a"]:
+                    win_cfg.parm = None
+                    Window.close("save_code")
+            return
         # コンフィグ設定
         elif Window.get("config"):
             win = Window.get("config").update_cursol(btn)
-            key = ["bgm", "auto_save"][win.cur_y]
-            if btn["r"] or btn["l"]:
-                self.config[key] = not self.config[key]
-                self.show_config()
-            if btn["s"] or btn["a"]:
-                Window.close("config")
+            self.show_config()
+            is_close = False
+            if btn["u"] or btn["d"]:
+                win.parm = None
+            if win.cur_y in (0, 1):
+                key = ["bgm", "auto_save"][win.cur_y]
+                if btn["r"] or btn["l"]:
+                    self.config[key] = not self.config[key]
+                if btn["s"] or btn["a"]:
+                    is_close = True
+            else:
+                if btn["s"] and win.cur_y == 2:
+                    data = self.save_data()
+                    save_parms = Userdata.save_cloud(
+                        self.save_code, self.password, data
+                    )
+                    (self.save_code, self.password) = save_parms
+                    if self.save_code is None:
+                        Sounds.sound(7)
+                        win.parm = [" ローカルモードでは", " サーバーセーブはできません"]
+                    else:
+                        win.parm = [
+                            f"セーブコード： {self.save_code}",
+                            "メモをとるか",
+                            "スクリーンショットをとって",
+                            "きろくしてください",
+                        ]
+                if btn["s"] and win.cur_y == 3:
+                    Window.close("config_guide")
+                    self.show_save_code()
+                elif btn["a"]:
+                    is_close = True
+            if is_close:
+                Window.close(["config", "config_guide"])
                 self.show_operation_guide()
                 Userdata.set_config(self.config)
-                if Sounds.no_bgm == self.config["bgm"]:
-                    Sounds.no_bgm = not self.config["bgm"]
+                if self.config["bgm"]:
+                    Sounds.no_bgm = False
                     Sounds.play()
             return
         # Welcome画面
@@ -188,6 +254,9 @@ class App:
                 if cur_y == 2:  # config
                     Window.close("operation_guide")
                     self.show_config()
+                    if self.config["bgm"]:
+                        Sounds.no_bgm = True
+                        Sounds.play()
                     return
                 Window.close()
                 self.visible = False
@@ -599,7 +668,11 @@ class App:
             self.show_shop_guide()
             item = win.cur_value
             if btn["s"]:
-                if self.gold < item.price:
+                if item.id is None:
+                    self.show_shop_msg("そのしなものは うりきれです")
+                    Sounds.sound(7)
+                    return
+                elif self.gold < item.price:
                     self.show_shop_msg("おかねが たりないようですよ")
                     Sounds.sound(7)
                     return
@@ -1523,7 +1596,7 @@ class App:
             " B/みぎボタン : キャンセル",
             " X/ひだりボタン: メニューをひらく",
             " Y/うえボタン : リセット（ながおし２びょう）",
-            "                   ver.231121",
+            "                   ver.231205",
         ]
         Window.open("operation_guide", 2, 6, 28, 19, texts, True)
 
@@ -1535,16 +1608,65 @@ class App:
         texts = [
             f" BGM    : {bgm_s}",
             f" オートセーブ : {auto_save_s}",
-            "",
-            " オートセーブを オンにすると",
-            " メニューを とじたときや",
-            " せんとうしゅうりょうじ などに",
-            " じどうてきに セーブされます",
+            " サーバーへ データをセーブ",
+            " サーバーから データをロード",
         ]
         if win:
             win.texts = texts
         else:
-            Window.open("config", 8, 7, 23, 14, texts).add_cursol([0, 1])
+            win = Window.open("config", 8, 7, 23, 10, texts).add_cursol()
+        if win.parm:
+            texts = win.parm
+        elif win.cur_y == 0:
+            texts = [
+                " BGMを オフにすると",
+                " SEだけが さいせいされます",
+                " SEも いらないばあいは",
+                " デバイスごと ミュートください",
+            ]
+        elif win.cur_y == 1:
+            texts = [
+                " オートセーブを オンにすると",
+                " メニューを とじたときや",
+                " せんとうしゅうりょうじ などに",
+                " じどうてきに セーブされます",
+            ]
+        else:
+            texts = [
+                " データのバックアップや",
+                " PCとスマホの あいだなどで",
+                " セーブデータの きょうゆうを",
+                " することができます",
+            ]
+        Window.open("config_guide", 8, 13, 23, 16, texts)
+
+    # セーブコード入力
+    def show_save_code(self):
+        win = Window.get("save_code")
+        disp_code = ""
+        texts = ["", ""]
+        for idx, line in enumerate(["01234も", "56789お"]):
+            text = ""
+            for letter in line:
+                text += f" {letter}"
+            if idx == 0:
+                text += "どる"
+            if idx == 1:
+                text += "わり"
+            texts.append(text)
+        if win:
+            parm = win.parm
+            idx = len(parm) if len(parm) < 6 else 5
+            for i in range(6):
+                if len(parm) > i:
+                    disp_code += parm[i]
+                else:
+                    disp_code += "■" if i == idx and px.frame_count % 30 < 15 else " "
+            texts[0] = f" セーブコード： {disp_code}"
+            win.texts = texts
+        else:
+            win = Window.open("save_code", 8, 13, 23, 16, texts)
+            win.add_cursol([2, 3], [0, 2, 4, 6, 8, 10]).parm = []
 
     # ゲーム初期化
     def start_new_game(self):
@@ -1573,7 +1695,8 @@ class App:
             "chambers": self.chambers,
             "frames": self.frames,
         }
-        return Userdata.save(data)
+        Userdata.save(data)
+        return data
 
     # オートセーブ
     def auto_save(self):
@@ -1583,8 +1706,8 @@ class App:
         return self.config["auto_save"]
 
     # ロード
-    def load_data(self):
-        data = Userdata.load()
+    def load_data(self, data_cloud=None):
+        data = data_cloud if data_cloud else Userdata.load()
         success = False
         try:
             self.player = Actor(
@@ -1599,16 +1722,18 @@ class App:
             )
             self.orders = data["orders"] if "orders" in data else []
             self.members = [Member(member) for member in data["members"]]
-            self.reserves = [Member(reserve) for reserve in data["reserves"]]
-            self.items = data["items"]
+            reserves = data["reserves"] if "reserves" in data else []
+            self.reserves = [Member(reserve) for reserve in reserves]
+            self.items = data["items"] if "items" in data else []
             self.gold = data["gold"]
-            self.stocks = data["stocks"]
+            self.stocks = data["stocks"] if "stocks" in data else []
             self.encount = data["encount"]
             self.chambers = data["chambers"]
             self.frames = data["frames"]
             success = True
-        except:
+        except Exception as e:
             print("不正なセーブデータです")
+            print(e)
             self.init_data()
         self.set_members_pos()
         return success
@@ -2216,15 +2341,17 @@ class App:
             if item.stocks or item.id in self.stocks:
                 values.append(item)
                 texts.append(f" {util.spacing(item.name, 11)}")
+            elif self.exist_imperial and item.type:
+                values.append(Item())
+                texts.append(f" ？")
         Window.open("shop_buy", 2, 5, 15, 16, texts).add_cursol().values = values
 
     # ボルタックしょうてん：お店ガイド
     def show_shop_guide(self):
         win = Window.get("shop_buy")
         item = win.values[win.cur_y]
-        Window.open(
-            "shop_guide", 17, 5, 29, 16, item.details(True, self.items.count(item.id))
-        )
+        texts = item.details(True, self.items.count(item.id)) if item else []
+        Window.open("shop_guide", 17, 5, 29, 16, texts)
 
     # ボルタックしょうてん：売る
     def show_shop_sell(self):
@@ -2594,13 +2721,9 @@ class App:
                 return False
             seed = int(values[1])
             if seed == 60:
-                exist_imperial = False
-                for mb in self.members + self.reserves:
-                    if mb.imperial:
-                        exist_imperial = True
                 if self.has_item(77):
                     seed = 59
-                elif exist_imperial:
+                elif self.exist_imperial:
                     seed = 40
             self.battle = Battle(False, location, self.members, self.items, seed)
             self.start_battle()
@@ -2848,6 +2971,14 @@ class App:
         win_img.parm = 1
         if reward_items:
             Window.selector("reward", reward_items)
+
+    # クリア後？
+    @property
+    def exist_imperial(self):
+        for mb in self.members + self.reserves:
+            if mb.imperial:
+                return True
+        return False
 
     # 全滅？
     @property

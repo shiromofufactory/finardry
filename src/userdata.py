@@ -1,6 +1,7 @@
 LOCAL = False
 try:
     from js import window, document
+    from pyodide.http import open_url
 except:
     LOCAL = True
     print("ローカルモード")
@@ -8,6 +9,8 @@ import json
 import util
 from datetime import datetime, timedelta
 import re
+
+base = "https://us-central1-finardry.cloudfunctions.net/"
 
 
 class Userdata:
@@ -50,7 +53,7 @@ class Userdata:
                     return json.loads(load_data)
             return None
 
-    # 書き込み
+    # 書き込み（コンフィグ）
     def set_config(data):
         try:
             if LOCAL:
@@ -64,7 +67,7 @@ class Userdata:
             print("Save Failed.")
             return False
 
-    # 読み込み
+    # 読み込み（コンフィグ）
     def get_config():
         try:
             if LOCAL:
@@ -73,6 +76,26 @@ class Userdata:
                 return json.loads(window.localStorage.getItem("finardryConfig"))
         except:
             print("Load Failed.")
+            return None
+
+    # 書き込み（クラウド）
+    def save_cloud(save_code, pwd, data):
+        try:
+            now = datetime.now()
+            data["updated_at"] = now.strftime("%Y%m%d%H%M%S")
+            data_str = json.dumps(data).replace(" ", "")
+            url = f"{base}save?id={save_code}&pwd={pwd}&data={data_str}"
+            res = open_url(url).read()
+            return res.split(",")
+        except:
+            return (None, None)
+
+    # 読み込み（クラウド）
+    def load_cloud(save_code):
+        try:
+            url = f"{base}load?id={save_code}"
+            return json.loads(open_url(url).read())
+        except:
             return None
 
     # ウェブ判定

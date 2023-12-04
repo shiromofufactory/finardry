@@ -17,6 +17,8 @@ class Item:
             self.atc = 0
             self.hit = 0
             self.tribe = 0
+            self.jobs = []
+            self.nature = 0
             self.img_u = None
             self.img_v = None
 
