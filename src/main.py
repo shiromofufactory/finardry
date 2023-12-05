@@ -2341,7 +2341,7 @@ class App:
             if item.stocks or item.id in self.stocks:
                 values.append(item)
                 texts.append(f" {util.spacing(item.name, 11)}")
-            elif self.exist_imperial and item.type:
+            elif self.exist_imperial and item.price:
                 values.append(Item())
                 texts.append(f" ？")
         Window.open("shop_buy", 2, 5, 15, 16, texts).add_cursol().values = values
