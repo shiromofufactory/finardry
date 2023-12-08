@@ -452,7 +452,7 @@ class Member:
         self.spd = min((self.spd + spd_m) // 2, self.spd)
         self.vit = min((self.vit + vit_m) // 2, self.vit)
         self.int = min((self.int + int_m) // 2, self.int)
-        self.pie = min((self.vit + pie_m) // 2, self.pie)
+        self.pie = min((self.pie + pie_m) // 2, self.pie)
         self.mmp = [0, 0, 0, 0, 0, 0]
         if self.job_id == 3 and not 19 in self.spells:
             self.spells.append(19)
