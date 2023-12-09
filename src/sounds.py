@@ -47,9 +47,9 @@ class Sounds:
             if sound is None or ch == 3:
                 continue
             if Sounds.no_bgm:
-                px.sound(ch).set("r", "", "", "", 1)
+                px.sounds[ch].set("r", "", "", "", 1)
             else:
-                px.sound(ch).set(*sound)
+                px.sounds[ch].set(*sound)
             px.play(ch, ch, loop=loop, tick=tick)
 
     # 止まっていた曲を再生

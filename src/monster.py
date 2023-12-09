@@ -28,7 +28,7 @@ class Monster:
             u = (img_no % 4) * 64
             v = (img_no // 4) * 64
             img = [monster_images[v + y][u : u + 64] for y in range(64)]
-            px.image(2).set((idx % 4) * 64, (idx // 4) * 64, img)
+            px.images[2].set((idx % 4) * 64, (idx // 4) * 64, img)
 
     @classmethod
     def all(cls):

@@ -73,5 +73,5 @@ src/local
 tools
 __pycache__
 images
-static/pyxel-1.9.18-cp37-abi3-emscripten_3_1_42_wasm32.whl
+static/pyxel*
 static/pyxel.*

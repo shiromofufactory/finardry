@@ -24,9 +24,9 @@ class App:
     def __init__(self):
         px.init(256, 256, title="Finardry", quit_key=px.KEY_NONE)
         px.load("wiz2d.pyxres")
-        # px.image(0).save("../images/image0.png", 1)
-        # px.image(1).save("../images/image1.png", 1)
-        # px.image(2).save("../images/image2.png", 1)
+        # px.images[0].save("../images/image0.png", 1)
+        # px.images[1].save("../images/image1.png", 1)
+        # px.images[2].save("../images/image2.png", 1)
         Window.bdf = BDFRenderer("k8x12S.bdf")
         self.events = util.load_json("data/events")
         config = Userdata.get_config()
@@ -1506,7 +1506,6 @@ class App:
             return
         if Fade.dist:  # フェードイン・アウト
             self.visible = Fade.draw()
-            return
         # プレイヤーとフィールド
         if not self.menu_visible:
             if self.scene == 0:
@@ -1596,7 +1595,7 @@ class App:
             " B/みぎボタン : キャンセル",
             " X/ひだりボタン: メニューをひらく",
             " Y/うえボタン : リセット（ながおし２びょう）",
-            "                   ver.231205",
+            "                   ver.231210",
         ]
         Window.open("operation_guide", 2, 6, 28, 19, texts, True)
 
