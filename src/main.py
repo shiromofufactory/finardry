@@ -122,7 +122,7 @@ class App:
         # 効果音/音楽→次の音楽
         if Sounds.resume(self.next_music_tick):
             self.next_music_tick = 0
-        # フェード・銭湯突入中・強制音楽は操作を受け付けない
+        # フェード・戦闘突入中・強制音楽は操作を受け付けない
         if Fade.dist or self.rollout:  # or Sounds.waiting:
             return
         # ここからウィンドウ処理：はいいいえ
@@ -956,6 +956,7 @@ class App:
                     self.show_place(0)
                     self.show_bar()
                 elif win.cur_y == 1:
+                    self.items.sort()
                     self.show_place(1)
                     self.show_shop()
                 elif win.cur_y == 2:
@@ -1699,7 +1700,7 @@ class App:
 
     # オートセーブ
     def auto_save(self):
-        if self.config["auto_save"]:
+        if self.config["auto_save"] and self.members:
             print("オートセーブ実施")
             self.save_data()
         return self.config["auto_save"]
