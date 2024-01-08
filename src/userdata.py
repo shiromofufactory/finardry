@@ -83,6 +83,8 @@ class Userdata:
         try:
             now = datetime.now()
             data["updated_at"] = now.strftime("%Y%m%d%H%M%S")
+            data["mapped_comp"] = util.run_length_encode(data["mapped"])
+            del data["mapped"]
             data_str = json.dumps(data).replace(" ", "")
             url = f"{base}save?id={save_code}&pwd={pwd}&data={data_str}"
             res = open_url(url).read()
@@ -94,7 +96,11 @@ class Userdata:
     def load_cloud(save_code):
         try:
             url = f"{base}load?id={save_code}"
-            return json.loads(open_url(url).read())
+            data = json.loads(open_url(url).read())
+            if "mapped_comp" in data:
+                data["mapped"] = util.run_length_decode(data["mapped_comp"])
+                del data["mapped_comp"]
+            return data
         except:
             return None
 

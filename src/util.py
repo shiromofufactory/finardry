@@ -86,3 +86,44 @@ def play_time(frames, with_seconds=False):
         return f"{pad(hours,2,'0')}：{pad(minutes,2,'0')}：{pad(seconds,2,'0')}"
     else:
         return f"{pad(hours,2,'0')}：{pad(minutes,2,'0')}"
+
+
+# 文字列圧縮（ランレングス法）
+def run_length_encode(s):
+    if not s:
+        return ""
+    s = s.replace("0", "a").replace("1", "b").replace("2", "c")
+
+    compressed = []
+    count = 1
+    prev_char = s[0]
+
+    for char in s[1:]:
+        if char == prev_char:
+            count += 1
+        else:
+            compressed.append(f"{count}{prev_char}")
+            prev_char = char
+            count = 1
+
+    compressed.append(f"{count}{prev_char}")  # Add the last run
+    return "".join(compressed)
+
+
+# 文字列展開（ランレングス法）
+def run_length_decode(s):
+    if not s:
+        return ""
+
+    expanded = []
+    count = ""
+
+    for char in s:
+        if char.isdigit():
+            count += char  # Building the count
+        else:
+            expanded.append(char * int(count))  # Append the char count times
+            count = ""  # Reset count for the next run
+
+    expanded_string = "".join(expanded)
+    return expanded_string.replace("a", "0").replace("b", "1").replace("c", "2")
