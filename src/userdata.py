@@ -3,6 +3,8 @@ try:
     from js import window, document
     from pyodide.http import open_url
 except:
+    import urllib.request
+
     LOCAL = True
     print("ローカルモード")
 import json
@@ -85,7 +87,11 @@ class Userdata:
             del data["mapped"]
             data_str = json.dumps(data).replace(" ", "")
             url = f"{base}save?id={save_code}&pwd={pwd}&data={data_str}"
-            res = open_url(url).read()
+            if LOCAL:
+                with urllib.request.urlopen(url) as response:
+                    res = response.read().decode("utf-8")
+            else:
+                res = open_url(url).read()
             return res.split(",")
         except:
             return (None, None)
@@ -94,7 +100,12 @@ class Userdata:
     def load_cloud(save_code):
         try:
             url = f"{base}load?id={save_code}"
-            data = json.loads(open_url(url).read())
+            if LOCAL:
+                with urllib.request.urlopen(url) as response:
+                    res = response.read()
+            else:
+                res = open_url(url).read()
+            data = json.loads(res)
             if "mapped_comp" in data:
                 data["mapped"] = util.run_length_decode(data["mapped_comp"])
                 del data["mapped_comp"]
