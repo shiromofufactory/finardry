@@ -1,6 +1,11 @@
 import pyxel as px
 import json
+import os
 
+current_path = os.path.abspath(".")
+# print("current_path", current_path)
+if current_path.endswith("finardry"):  # pyxapp用パス調整
+    current_path += "/src"
 
 h_texts = " 1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ /+-:*#()[]"
 z_texts = "　１２３４５６７８９０ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ　／＋－：＊＃（）［］"
@@ -10,8 +15,16 @@ z2h = str.maketrans(z_texts, h_texts)
 
 # JSONロード
 def load_json(file):
-    with open("./" + file + ".json", "r") as fin:
+    fullPath = current_path + "/" + file + ".json"
+    # print("loading:", fullPath)
+    with open(fullPath, "r") as fin:
         return json.loads(fin.read())
+
+
+# テキストファイルロード
+def load_texts(file):
+    with open(current_path + "/" + file, "r") as fin:
+        return fin.read().splitlines()
 
 
 # 「ピッ」音

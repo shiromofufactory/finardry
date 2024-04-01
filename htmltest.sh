@@ -16,6 +16,6 @@ cp -r static/* public/
 cp -r src/musics public/
 cp -r src/data public/
 cp -r src/maps public/
-rm -f src.pyxapp
+mv -f src.pyxapp finardry.pyxapp
 cd public
 python3 -m http.server 8000

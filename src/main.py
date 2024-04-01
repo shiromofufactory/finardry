@@ -1,7 +1,7 @@
 import pyxel as px
+import util
 import copy
 import math
-import util
 from actor import Actor
 from member import Member
 from spell import Spell
@@ -15,8 +15,7 @@ from window import Window
 from userdata import Userdata
 
 const = util.load_json("data/const")
-with open("./data/names.txt", "r") as fin:
-    names = fin.readlines()
+names = util.load_texts("data/names.txt")
 chambers_master = util.load_json("data/chambers")
 
 
@@ -222,7 +221,10 @@ class App:
                     (self.save_code, self.password) = save_parms
                     if self.save_code is None:
                         Sounds.sound(7)
-                        win.parm = [" ローカルモードでは", " サーバーセーブはできません"]
+                        win.parm = [
+                            " ローカルモードでは",
+                            " サーバーセーブはできません",
+                        ]
                     else:
                         win.parm = [
                             f"セーブコード： {self.save_code}",
@@ -269,7 +271,10 @@ class App:
                     else:
                         self.scene = 2
                 elif Userdata.is_web() and not Userdata.is_pwa():
-                    texts = ["ゲームをはじめるまえに ガイドをかくにんしますか？", "（「はい」をおすと べつタブでガイドがひらきます）"]
+                    texts = [
+                        "ゲームをはじめるまえに ガイドをかくにんしますか？",
+                        "（「はい」をおすと べつタブでガイドがひらきます）",
+                    ]
                     Window.message(texts)
                     win = Window.selector("yn", "new_game")
                 else:
@@ -301,15 +306,25 @@ class App:
                                 f"さいだいHP : {ls['mhp']} (+{ls['mhp']-mb.mhp})",
                             ]
                             if ls["str"] - mb.str:
-                                texts += [f"ちから    : {ls['str']} (+{ls['str']-mb.str})"]
+                                texts += [
+                                    f"ちから    : {ls['str']} (+{ls['str']-mb.str})"
+                                ]
                             if ls["spd"] - mb.spd:
-                                texts += [f"すばやさ   : {ls['spd']} (+{ls['spd']-mb.spd})"]
+                                texts += [
+                                    f"すばやさ   : {ls['spd']} (+{ls['spd']-mb.spd})"
+                                ]
                             if ls["vit"] - mb.vit:
-                                texts += [f"せいめいりょく: {ls['vit']} (+{ls['vit']-mb.vit})"]
+                                texts += [
+                                    f"せいめいりょく: {ls['vit']} (+{ls['vit']-mb.vit})"
+                                ]
                             if ls["int"] - mb.int:
-                                texts += [f"ちえ     : {ls['int']} (+{ls['int']-mb.int})"]
+                                texts += [
+                                    f"ちえ     : {ls['int']} (+{ls['int']-mb.int})"
+                                ]
                             if ls["pie"] - mb.pie:
-                                texts += [f"しんこうしん : {ls['pie']} (+{ls['pie']-mb.pie})"]
+                                texts += [
+                                    f"しんこうしん : {ls['pie']} (+{ls['pie']-mb.pie})"
+                                ]
                             if len(ls["spells"]) > len(mb.spells):
                                 texts.append("あたらしいじゅもんを おぼえた")
                             mb.lvup(ls)
@@ -318,10 +333,20 @@ class App:
                     if self.battle.treasure:
                         Window.close()
                         Window.open(
-                            "treasure_msg", 1, 1, 30, 2, "たからのはこだ！ どうしますか？"
+                            "treasure_msg",
+                            1,
+                            1,
+                            30,
+                            2,
+                            "たからのはこだ！ どうしますか？",
                         ).parm = False
                         Window.open("treasure_img", 1, 4, 10, 9).parm = 0
-                        texts = [" あける", " わなをしらべる", " カルフォをとなえる", " たちさる"]
+                        texts = [
+                            " あける",
+                            " わなをしらべる",
+                            " カルフォをとなえる",
+                            " たちさる",
+                        ]
                         win = Window.open("treasure", 1, 11, 10, 14, texts).add_cursol()
                         win.cur_y = 1
                         # ワナ判定
@@ -808,7 +833,9 @@ class App:
                 if win_msg.has_cur:
                     if win_msg.cur_y == 0:
                         self.reserves.pop(win.cur_y)
-                        self.show_training_delete(f"{member.name}は まっしょうされました")
+                        self.show_training_delete(
+                            f"{member.name}は まっしょうされました"
+                        )
                     else:
                         self.show_training_delete()
                 else:
@@ -885,9 +912,9 @@ class App:
                     self.change_job(member, win.cur_value.id)
                     is_close = True
                     texts = member.text_detail
-                    Window.open(
-                        "training_job_changed", 1, 0, 30, 19, texts
-                    ).parm = member
+                    Window.open("training_job_changed", 1, 0, 30, 19, texts).parm = (
+                        member
+                    )
                 else:
                     Sounds.sound(7)
             elif btn["a"]:
@@ -1151,7 +1178,10 @@ class App:
                             for idx, mb in enumerate(bt.members):
                                 if 24 in mb.spells and mb.mp[1] and not mb.health:
                                     win_mem.cur_y = idx
-                                    win_msg.texts = ["だれが カルフォをとなえますか？", ""]
+                                    win_msg.texts = [
+                                        "だれが カルフォをとなえますか？",
+                                        "",
+                                    ]
                                     break
                             else:
                                 win_mem.has_cur = False
@@ -1574,7 +1604,12 @@ class App:
         self.btn_reset_timer = 0
         texts = ["Finardryの せかいへ ようこそ！"]
         if not Userdata.save(True, True):
-            texts += ["", "*** けいこく ***", "このブラウザでは セーブができません", "せっていを かくにんしてください"]
+            texts += [
+                "",
+                "*** けいこく ***",
+                "このブラウザでは セーブができません",
+                "せっていを かくにんしてください",
+            ]
         Window.message(texts)
         self.show_operation_guide()
         win = Window.selector("opening")
@@ -2193,7 +2228,9 @@ class App:
         cont = False
         if spell.target == 1:
             if target is None:
-                Window.open("select_members_mes", 8, 2, 24, 2, "  だれに つかいますか？")
+                Window.open(
+                    "select_members_mes", 8, 2, 24, 2, "  だれに つかいますか？"
+                )
                 self.show_select_members((spell, member, item_id))
                 return None, False
             cont = True
@@ -2331,7 +2368,9 @@ class App:
             Window.open("shop_buysell", 2, 3, 10, 3, [" かう   うる"]).add_cursol(
                 [0], [0, 5]
             )
-        Window.open("shop_gold", 13, 3, 29, 3, [f"しょじきん:{util.pad(self.gold,6)} Gold"])
+        Window.open(
+            "shop_gold", 13, 3, 29, 3, [f"しょじきん:{util.pad(self.gold,6)} Gold"]
+        )
 
     # ボルタックしょうてん：買う
     def show_shop_buy(self):
@@ -2471,9 +2510,9 @@ class App:
             texts.append(member.text_catsle)
             values.append(member)
         if len(values):
-            Window.open(
-                "training_delete", 4, 3, 28, 12, texts
-            ).add_cursol().values = values
+            Window.open("training_delete", 4, 3, 28, 12, texts).add_cursol().values = (
+                values
+            )
             Window.open("training_delete_msg", 4, 14, 28, 18, msg).has_cur = None
         else:
             self.show_training(1)

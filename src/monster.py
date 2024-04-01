@@ -2,9 +2,7 @@ import pyxel as px
 import util
 
 monsters_dict = {monster["id"]: monster for monster in util.load_json("data/monsters")}
-
-with open("./data/monster.dat", "r") as fin:
-    monster_images = fin.read().splitlines()
+monster_images = util.load_texts("data/monster.dat")
 
 
 class Monster:

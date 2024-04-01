@@ -20,5 +20,5 @@ cp -r static/* public/
 cp -r src/musics public/
 cp -r src/data public/
 cp -r src/maps public/
-rm -f src.pyxapp
+mv -f src.pyxapp finardry.pyxapp
 firebase deploy --only hosting

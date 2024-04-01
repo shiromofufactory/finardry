@@ -1,5 +1,6 @@
 import pyxel as px
 import os
+import json
 import util
 
 
@@ -18,7 +19,9 @@ class Sounds:
         for file in files:
             if file.split(".")[-1] == "json":
                 key = file.replace(".json", "")
-                Sounds.musics[key] = util.load_json(path + key)
+                with open(path + file, "r") as fin:
+                    Sounds.musics[key] = json.loads(fin.read())
+                # Sounds.musics[key] = util.load_json(path + key)
 
     # 効果音
     def sound(id, next_music=None):
