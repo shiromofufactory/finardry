@@ -244,6 +244,7 @@ class App:
                 if self.config["bgm"]:
                     Sounds.no_bgm = False
                     Sounds.play()
+                px.quit()
             return
         # Welcome画面
         elif Window.get("opening"):
@@ -260,6 +261,8 @@ class App:
                         Sounds.no_bgm = True
                         Sounds.play()
                     return
+                elif cur_y == 3:  # Exit(ローカル)
+                    px.quit()
                 Window.close()
                 self.visible = False
                 if cur_y == 0:

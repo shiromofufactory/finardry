@@ -1,6 +1,7 @@
 import pyxel as px
 import util
 import copy
+from userdata import Userdata
 
 msg_list = util.load_json("data/messages")
 
@@ -254,6 +255,9 @@ class Window:
             texts = [" New Game", " Continue", " Config"]
             values = None
             x1, y1, x2, y2 = x - 6, y - 4, x + 3, y - 2
+            if not Userdata.is_web():
+                texts.append(" Exit")
+                y2 += 1
         win = cls.open(kind, x1, y1, x2, y2, texts).add_cursol()
         win.values = values
         win.parm = parm
