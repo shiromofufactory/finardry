@@ -20,8 +20,7 @@ class Userdata:
             data_str = json.dumps(data).replace(" ", "")
             if LOCAL:
                 if not is_test:
-                    with open("./local/save.json", "w") as fout:
-                        fout.write(data_str)
+                    util.save_json("local/save", data_str)
             elif is_test:
                 window.localStorage.setItem("finardryTest", data_str)
             else:
@@ -57,8 +56,7 @@ class Userdata:
     def set_config(data):
         try:
             if LOCAL:
-                with open("./local/config.json", "w") as fout:
-                    fout.write(json.dumps(data))
+                util.save_json("local/config", json.dumps(data))
             else:
                 key = "finardryConfig"
                 window.localStorage.setItem(key, json.dumps(data).replace(" ", ""))

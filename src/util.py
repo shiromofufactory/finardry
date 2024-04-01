@@ -21,6 +21,12 @@ def load_json(file):
         return json.loads(fin.read())
 
 
+# JSONセーブ
+def save_json(file, data):
+    with open(current_path + "/" + file + ".json", "w") as fout:
+        fout.write(data)
+
+
 # テキストファイルロード
 def load_texts(file):
     with open(current_path + "/" + file, "r") as fin:
