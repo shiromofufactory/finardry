@@ -6,6 +6,8 @@ current_path = os.path.abspath(".")
 # print("current_path", current_path)
 if current_path.endswith("finardry"):  # pyxapp用パス調整
     current_path += "/src"
+if current_path == "/":
+    current_path = ""
 
 h_texts = " 1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ /+-:*#()[]"
 z_texts = "　１２３４５６７８９０ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ　／＋－：＊＃（）［］"
