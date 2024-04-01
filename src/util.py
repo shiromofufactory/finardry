@@ -2,8 +2,9 @@ import pyxel as px
 import json
 import os
 
-current_path = os.path.abspath(".")
-# print("current_path", current_path)
+current_path = os.path.dirname(__file__)
+
+print("current_path", current_path)
 if current_path.endswith("finardry"):  # pyxapp用パス調整
     current_path += "/src"
 if current_path == "/":
