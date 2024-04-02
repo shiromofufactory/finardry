@@ -10,6 +10,10 @@ except:
     print("ローカルモード")
     local_path = os.path.abspath(".")
     local_path += "/src/local" if local_path.endswith("finardry") else "/local"
+    if not os.path.exists(local_path):  # Linuxローカル用
+        local_path = os.path.expanduser("~/.config/.pyxel/finardry")
+        if not os.path.exists(local_path):
+            os.makedirs(local_path)
     # print("local_path:", local_path)
 import json
 import util
@@ -62,7 +66,7 @@ class Userdata:
     def set_config(data):
         try:
             if LOCAL:
-                util.save_json("local/config", json.dumps(data))
+                util.save_json("config", json.dumps(data), local_path)
             else:
                 key = "finardryConfig"
                 window.localStorage.setItem(key, json.dumps(data).replace(" ", ""))
@@ -75,7 +79,7 @@ class Userdata:
     def get_config():
         try:
             if LOCAL:
-                return util.load_json("./local/config")
+                return util.load_json("config", local_path)
             else:
                 return json.loads(window.localStorage.getItem("finardryConfig"))
         except:
