@@ -4,7 +4,7 @@ import os
 
 current_path = os.path.dirname(__file__)
 
-print("current_path", current_path)
+# print("current_path", current_path)
 if current_path.endswith("finardry"):  # pyxapp用パス調整
     current_path += "/src"
 if current_path == "/":
@@ -17,16 +17,18 @@ z2h = str.maketrans(z_texts, h_texts)
 
 
 # JSONロード
-def load_json(file):
-    fullPath = current_path + "/" + file + ".json"
+def load_json(file, path=current_path):
+    fullPath = path + "/" + file + ".json"
     # print("loading:", fullPath)
     with open(fullPath, "r") as fin:
         return json.loads(fin.read())
 
 
 # JSONセーブ
-def save_json(file, data):
-    with open(current_path + "/" + file + ".json", "w") as fout:
+def save_json(file, data, path=current_path):
+    fullPath = path + "/" + file + ".json"
+    # print("saved to", fullPath)
+    with open(fullPath, "w") as fout:
         fout.write(data)
 
 

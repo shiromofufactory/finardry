@@ -4,9 +4,13 @@ try:
     from pyodide.http import open_url
 except:
     import urllib.request
+    import os
 
     LOCAL = True
     print("ローカルモード")
+    local_path = os.path.abspath(".")
+    local_path += "/src/local" if local_path.endswith("finardry") else "/local"
+    # print("local_path:", local_path)
 import json
 import util
 from datetime import datetime, timedelta
@@ -22,7 +26,7 @@ class Userdata:
             data_str = json.dumps(data).replace(" ", "")
             if LOCAL:
                 if not is_test:
-                    util.save_json("local/save", data_str)
+                    util.save_json("save", data_str, local_path)
             elif is_test:
                 window.localStorage.setItem("finardryTest", data_str)
             else:
@@ -31,9 +35,9 @@ class Userdata:
                 expires_str = future_date.strftime("%a, %d %b %Y %H:%M:%S GMT")
                 modified_data = re.sub(r'"mapped":".*?",', "", data_str)
                 cookie_str = f"finardry={modified_data}; expires={expires_str}; path=/"
-                print(cookie_str)
+                # print(cookie_str)
                 document.cookie = cookie_str
-                print(document.cookie)
+                # print(document.cookie)
             return True
         except:
             print("Save Failed.")
@@ -43,7 +47,7 @@ class Userdata:
     def load():
         try:
             if LOCAL:
-                return util.load_json("./local/save")
+                return util.load_json("save", local_path)
             else:
                 return json.loads(window.localStorage.getItem("finardry"))
         except:

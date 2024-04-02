@@ -12,6 +12,7 @@ class Spell:
             self.__dict__.update(spell)
         else:
             self.id = None
+            self.on_battle = None
 
     @classmethod
     def all(cls):
