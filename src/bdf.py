@@ -14,12 +14,13 @@ class BDFRenderer:
         (1, 1),
     ]
 
-    def __init__(self, bdf_filename):
+    def __init__(self, bdf_filename, is_square):
         self.fontboundingbox = [0, 0, 0, 0]
         self.fonts = self._parse_bdf(bdf_filename)
         self.screen_ptr = pyxel.screen.data_ptr()
         self.screen_width = pyxel.width
         self.screen_height = pyxel.height
+        self.is_square = is_square
 
     def _parse_bdf(self, bdf_filename):
         fonts = {}
@@ -74,6 +75,8 @@ class BDFRenderer:
             - font_height
             - offset_y
         )
+        if not self.is_square:
+            y -= 6
         for j in range(font_height):
             for i in range(font_width):
                 if (bitmap[j] >> i) & 1:

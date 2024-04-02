@@ -2,6 +2,8 @@ import pyxel as px
 import util
 import copy
 import math
+import os
+import platform
 from actor import Actor
 from member import Member
 from spell import Spell
@@ -18,15 +20,23 @@ const = util.load_json("data/const")
 names = util.load_texts("data/names.txt")
 chambers_master = util.load_json("data/chambers")
 
+MODE_SQUARE = True
+if not Userdata.is_web():
+    if os.name == "posix" and platform.system() != "Darwin":
+        MODE_SQUARE = False
+
 
 class App:
     def __init__(self):
-        px.init(256, 256, title="Finardry", quit_key=px.KEY_NONE)
+        height = 256 if MODE_SQUARE else 240
+        px.init(256, height, title="Finardry", quit_key=px.KEY_NONE)
+        if not MODE_SQUARE:
+            px.camera(0, 6)
         px.load("wiz2d.pyxres")
         # px.images[0].save("../images/image0.png", 1)
         # px.images[1].save("../images/image1.png", 1)
         # px.images[2].save("../images/image2.png", 1)
-        Window.bdf = BDFRenderer("k8x12S.bdf")
+        Window.bdf = BDFRenderer("k8x12S.bdf", MODE_SQUARE)
         self.events = util.load_json("data/events")
         config = Userdata.get_config()
         if config is None:
