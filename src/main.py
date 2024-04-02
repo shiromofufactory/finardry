@@ -1769,8 +1769,8 @@ class App:
             self.frames = data["frames"]
             success = True
         except Exception as e:
-            print("不正なセーブデータです")
-            print(e)
+            print("有効なセーブデータがありません")
+            # print(e)
             self.init_data()
         self.set_members_pos()
         return success
