@@ -20,7 +20,7 @@ z2h = str.maketrans(z_texts, h_texts)
 def load_json(file, path=current_path):
     fullPath = path + "/" + file + ".json"
     # print("loading:", fullPath)
-    with open(fullPath, "r") as fin:
+    with open(fullPath, "r", encoding='utf-8') as fin:
         return json.loads(fin.read())
 
 
@@ -28,13 +28,13 @@ def load_json(file, path=current_path):
 def save_json(file, data, path=current_path):
     fullPath = path + "/" + file + ".json"
     # print("saved to", fullPath)
-    with open(fullPath, "w") as fout:
+    with open(fullPath, "w", encoding='utf-8') as fout:
         fout.write(data)
 
 
 # テキストファイルロード
 def load_texts(file):
-    with open(current_path + "/" + file, "r") as fin:
+    with open(current_path + "/" + file, "r", encoding='utf-8') as fin:
         return fin.read().splitlines()
 
 
