@@ -26,7 +26,7 @@ class Actor:
         self.reset_move()
         self.map_cells = []
         for i in range(6):
-            with open(f"./maps/b{i+1}.txt", "r") as fin:
+            with open(f"./maps/b{i+1}.txt", "r", encoding="utf-8") as fin:
                 self.map_cells.append(fin.readlines())
         if "mapped" in actor and actor["mapped"]:
             self.mapped = self.unzip(actor["mapped"])
