@@ -53,7 +53,7 @@ class Sounds:
                 px.sounds[ch].set("r", "", "", "", 1)
             else:
                 px.sounds[ch].set(*sound)
-            px.play(ch, ch, loop=loop, tick=tick)
+            px.play(ch, ch, loop=loop, sec=tick)
 
     # 止まっていた曲を再生
     def resume(tick=None):

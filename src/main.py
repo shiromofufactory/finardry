@@ -1500,7 +1500,7 @@ class App:
             # メニュー呼び出し
             elif btn["w_"]:
                 if Sounds.cur_music == "wiz-dungeon":
-                    self.next_music_tick = px.play_pos(0)[1]
+                    self.next_music_tick = util.get_play_pos()
                 else:
                     self.next_music_tick = 0
                 Sounds.bgm("wiz-camp")
@@ -1889,7 +1889,7 @@ class App:
 
     # 転職
     def change_job(self, member, job_id):
-        self.next_music_tick = px.play_pos(0)[1]
+        self.next_music_tick = util.get_play_pos()
         Sounds.bgm("wiz-lvup", False)
         member.change_job(job_id)
         member.get_off_equips(self.items, True)

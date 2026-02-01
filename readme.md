@@ -26,7 +26,6 @@ https://finardry.web.app/nopad.html
 
 なおスマホ版は PWA 対応しているため、URL をホーム画面に追加すれば、アプリのような起動方法・見栄えでプレイすることもできます。
 
-
 ### Linuxゲーム機(JELOS対応機種)をお持ちの方の場合
 
 JELOSに対応しているLinuxゲーム機（対象は[こちら](https://jelos.org/devices/)）をお持ちの場合、JELOSをベースにしたディストリビューションである[PlumOS](https://github.com/game-de-it/plumOS)をインストールすることで、Pyxel経由で起動することができます。
@@ -35,9 +34,7 @@ Linux上のブラウザではパッドが効かない・音が全面的に割れ
 
 - RGB30以外の場合：[こちら](https://github.com/shiromofufactory/finardry/blob/master/finardry.pyxapp)の finardry.pyxappをダウンロードし、「/storage/roms/pyxel/」 に配置してください。
 
-- RGB30の場合：hann_solo（@_hnsol）様による[画面最適化バージョン](https://github.com/hnsol/finardry240/blob/master/finardry240.pyxapp)がありますので、こちらがお勧めです。配置方法は上記と同じです。
-
-
+- RGB30の場合：hann_solo（@\_hnsol）様による[画面最適化バージョン](https://github.com/hnsol/finardry240/blob/master/finardry240.pyxapp)がありますので、こちらがお勧めです。配置方法は上記と同じです。
 
 ## ゲームデータのセーブ・ロードについて（必ずお読みください！）
 
@@ -102,6 +99,8 @@ Linux上のブラウザではパッドが効かない・音が全面的に割れ
 ## 更新履歴
 
 ※ 小さなバグの修正などは記載していないのでご了承ください。
+
+2026/02/01 Pyxel2.3系以降で動かした際、BGM切り替え時にゲームが落ちる問題を解消 ※ゲーム内バージョン表記は2023/12/10のまま
 
 2024/04/02 Pyxelパッケージファイル(.pyxapp)用のサーバーセーブ・ロード機能実装 ※ゲーム内容に変更はないため、ゲーム内バージョン表記は2023/12/10のまま
 
