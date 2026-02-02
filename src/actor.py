@@ -7,6 +7,22 @@ MOVE_SPEED = 4
 MAP_SIZE = 40
 STEP_XY = ((0, -1), (1, 0), (0, 1), (-1, 0))
 
+TILE = 16
+SCREEN_W, SCREEN_H = 256, 240
+CENTER_X, CENTER_Y = 120, 120
+RADIUS_X = (CENTER_X + (TILE - 1)) // TILE + 1
+RADIUS_Y = (CENTER_Y + (TILE - 1)) // TILE + 1
+
+
+# sin/cosを事前に計算
+COS_2DEG = [0.0] * 180
+SIN_2DEG = [0.0] * 180
+
+for i in range(180):
+    deg = i * 2
+    COS_2DEG[i] = px.cos(deg)
+    SIN_2DEG[i] = px.sin(deg)
+
 
 class Actor:
     def __init__(self, actor):
@@ -36,6 +52,8 @@ class Actor:
                 for _ in range(6)
             ]
         self.light = actor["light"] if "light" in actor else 0
+        self._vision = bytearray(MAP_SIZE * MAP_SIZE)  # 0/1
+        self._vision_key = None
 
     def zip(self):
         mapped = ""
@@ -137,36 +155,20 @@ class Actor:
         map_cells = self.map_cells[self.z]
         mapped = self.mapped[self.z]
         size = MAP_SIZE
-        vision_map = [[False for _ in range(size)] for _ in range(size)]
-        # 視界チェック
-        if self.is_real:
-            cx = self.x + 0.5  # + self.sx / 16
-            cy = self.y + 0.5  # + self.sy / 16
-            deg_expand = 15 if self.light else 0
-            deg_start = (180, 270, 0, 90)[self.dir] + 15 - deg_expand
-            deg_end = deg_start + 150 + deg_expand * 2
-            vision_length = 6 if self.light else 4
-            vision_map[self.y][self.x] = True
-            for deg in range(deg_start, deg_end, 2):
-                dist = 1
-                while True:
-                    x = int(cx + px.cos(deg) * dist + size) % size
-                    y = int(cy + px.sin(deg) * dist + size) % size
-                    vision_map[y][x] = True
-                    mapped[y][x] = max(mapped[y][x], 1)
-                    if not (map_cells[y][x] in " !<>tpw") or dist > vision_length:
-                        break
-                    dist += 1
+        vision = self._ensure_vision_map(map_cells, mapped, size)
         # フィールド描画
-        for y in range(size):
-            for x in range(size):
-                visible = vision_map[y][x]
+        for ry in range(-RADIUS_Y, RADIUS_Y + 1):
+            y = (self.y + ry + size) % size
+            for rx in range(-RADIUS_X, RADIUS_X + 1):
+                x = (self.x + rx + size) % size
+                visible = vision[y * size + x] != 0
                 passed = mapped[y][x]
                 if visible or passed:
-                    dx = (((x + size / 2 - self.x) % size - size / 2)) * 16 - self.sx
-                    dy = (((y + size / 2 - self.y) % size - size / 2)) * 16 - self.sy
+                    # プレイヤー(中心)からの相対座標（旧 dx/dy の “+120 前” と同じ意味）
+                    dx0 = rx * TILE - self.sx
+                    dy0 = ry * TILE - self.sy
                     cell = map_cells[y][x]
-                    passing = abs(dx) < 16 and abs(dy) < 16 and self.is_real
+                    passing = abs(dx0) < TILE and abs(dy0) < TILE and self.is_real
                     u = 6
                     if cell in " 0ptw":
                         u = 0
@@ -184,19 +186,34 @@ class Actor:
                         u = 8
                     elif (
                         cell == "+"
-                        or (cell == "u" and dy < 0 and visible)
-                        or (cell == "r" and dx > 0 and visible)
-                        or (cell == "d" and dy > 0 and visible)
-                        or (cell == "l" and dx < 0 and visible)
+                        or (cell == "u" and dy0 < 0 and visible)
+                        or (cell == "r" and dx0 > 0 and visible)
+                        or (cell == "d" and dy0 > 0 and visible)
+                        or (cell == "l" and dx0 < 0 and visible)
                     ):
                         u = 7
                     elif cell == "¥":
                         near = (
                             (
-                                (self.dir == 0 and dx == 0 and dy >= -16 and dy <= 0)
-                                or (self.dir == 1 and dx <= 16 and dx >= 0 and dy == 0)
-                                or (self.dir == 2 and dx == 0 and dy <= 16 and dy >= 0)
-                                or (self.dir == 3 and dx >= -16 and dx <= 0 and dy == 0)
+                                (self.dir == 0 and dx0 == 0 and dy0 >= -16 and dy0 <= 0)
+                                or (
+                                    self.dir == 1
+                                    and dx0 <= 16
+                                    and dx0 >= 0
+                                    and dy0 == 0
+                                )
+                                or (
+                                    self.dir == 2
+                                    and dx0 == 0
+                                    and dy0 <= 16
+                                    and dy0 >= 0
+                                )
+                                or (
+                                    self.dir == 3
+                                    and dx0 >= -16
+                                    and dx0 <= 0
+                                    and dy0 == 0
+                                )
                             )
                             and px.frame_count % 30 < 3
                             and self.is_real
@@ -210,8 +227,8 @@ class Actor:
                     v_r = mapped[y][(x + 1) % size]
                     mask_u = (2 if v_l else 0) + (1 if v_r else 0)
                     mask_v = 8 + (2 if v_u else 0) + (1 if v_d else 0)
-                    dx += 120
-                    dy += 120
+                    dx = dx0 + CENTER_X
+                    dy = dy0 + CENTER_Y
                     px.blt(dx, dy, 0, u * 16, v * 16, 16, 16)
                     if not visible:
                         px.blt(dx, dy, 0, 0 * 16, 7 * 16, 16, 16, 3)
@@ -225,6 +242,39 @@ class Actor:
             px.blt(120, 120, 0, u, v, 16, 16, 2)
         elif px.frame_count % 30 < 15:
             px.blt(120, 120, 0, 15 * 16, 4 * 16, 16, 16, 2)
+
+    def _vision_idx(self, x, y, size):
+        return y * size + x
+
+    # 視界計算
+    def _ensure_vision_map(self, map_cells, mapped, size):
+        key = (self.z, self.x, self.y, self.dir, self.light, self.is_real)
+        if key == self._vision_key:
+            return self._vision
+        self._vision_key = key
+        v = self._vision
+        v[:] = b"\x00" * (size * size)
+        if not self.is_real:
+            return v
+        cx = self.x + 0.5
+        cy = self.y + 0.5
+        deg_expand = 15 if self.light else 0
+        deg_start = (180, 270, 0, 90)[self.dir] + 15 - deg_expand
+        deg_end = deg_start + 150 + deg_expand * 2
+        vision_length = 6 if self.light else 4
+        v[self._vision_idx(self.x, self.y, size)] = 1
+        for deg in range(deg_start, deg_end, 2):
+            dist = 1
+            while True:
+                idx = (deg % 360) >> 1
+                x = int(cx + COS_2DEG[idx] * dist + size) % size
+                y = int(cy + SIN_2DEG[idx] * dist + size) % size
+                v[self._vision_idx(x, y, size)] = 1
+                mapped[y][x] = max(mapped[y][x], 1)
+                if not (map_cells[y][x] in " !<>tpw") or dist > vision_length:
+                    break
+                dist += 1
+        return v
 
     def reset_move(self):
         self.dx = 0
