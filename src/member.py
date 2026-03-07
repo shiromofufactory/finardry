@@ -1,4 +1,5 @@
 import copy
+from typing import List, Tuple, Optional
 import util
 import pyxel as px
 from job import Job
@@ -10,7 +11,7 @@ const = util.load_json("data/const")
 
 
 class Member:
-    def __init__(self, member):
+    def __init__(self, member: dict):
         is_new = not "mhp" in member
         self.name = member["name"]
         self.nature = member["nature"]
@@ -18,7 +19,7 @@ class Member:
         self.lv = member["lv"] if "lv" in member else 1
         self.exp = member["exp"] if "exp" in member else 0
         self.mhp = 1
-        self.mmp = [0, 0, 0, 0, 0, 0]
+        self.mmp: List[int] = [0, 0, 0, 0, 0, 0]
         self.str = member["str"]
         self.spd = member["spd"]
         self.vit = member["vit"]
@@ -26,7 +27,7 @@ class Member:
         self.pie = member["pie"]
         self.imperial = member["imperial"] if "imperial" in member else False
         self.health = member["health"] if "health" in member else 0  # 1眠り、2麻痺、3石化、4死亡
-        self.equips = member["equips"] if "equips" in member else []
+        self.equips: List[int] = member["equips"] if "equips" in member else []
         self.silent = False  # 沈黙
         self.poison = member["poison"] if "poison" in member else False
         self.tribe = 4
@@ -37,19 +38,19 @@ class Member:
             self.mhp = self.get_new_mhp(1, 0.95)
             self.mmp = self.get_new_mmp(1)
             self.hp = self.mhp
-            self.mp = copy.deepcopy(self.mmp)
+            self.mp: List[int] = copy.deepcopy(self.mmp)
             if self.job_id == 3:
-                self.spells = [i + 19 for i in range(self.mmp[0])]
+                self.spells: List[int] = [i + 19 for i in range(self.mmp[0])]
             elif self.job_id == 4:
-                self.spells = [i + 1 for i in range(self.mmp[0])]
+                self.spells: List[int] = [i + 1 for i in range(self.mmp[0])]
             else:
-                self.spells = []
+                self.spells: List[int] = []
         else:
             self.hp = member["hp"]
             self.mhp = member["mhp"]
-            self.mmp = member["mmp"]
-            self.mp = member["mp"]
-            self.spells = member["spells"] if "spells" in member else []
+            self.mmp: List[int] = member["mmp"]
+            self.mp: List[int] = member["mp"]
+            self.spells: List[int] = member["spells"] if "spells" in member else []
 
     @property
     def zip(self):
@@ -245,7 +246,7 @@ class Member:
             return util.pad(self.mhp, 3)
 
     # 装備取得
-    def equip(self, type):
+    def equip(self, type) -> Tuple['Item', Optional[int]]:
         for idx, equip in enumerate(self.equips):
             item = Item(equip)
             if item.type == type:
@@ -253,7 +254,7 @@ class Member:
         return Item(), None
 
     # アイテムを装備可能か
-    def can_equip(self, item):
+    def can_equip(self, item: 'Item'):
         if item.nature and item.nature != self.nature:
             return False  # 性格不適合
         return self.job_id in item.jobs
@@ -271,7 +272,7 @@ class Member:
         return equiped.id
 
     # 装備を外す
-    def get_off_equips(self, items, hold=False):
+    def get_off_equips(self, items: List[int], hold=False):
         equips = []
         for equip in self.equips:
             if hold and self.can_equip(Item(equip)):
@@ -355,7 +356,7 @@ class Member:
         return 100
 
     # あたらしいじゅもん
-    def get_new_spells(self, lv):
+    def get_new_spells(self, lv) -> list:
         spells = copy.deepcopy(self.spells)
         mmp = self.get_new_mmp(lv)
         learn_type = []
@@ -385,7 +386,7 @@ class Member:
         return spells
 
     # レベルアップ時のステータス
-    def get_lvup_status(self):
+    def get_lvup_status(self) -> dict:
         new_lv = self.lv + 1
         up_pos = {}
         up_st = {"str": 0, "spd": 0, "vit": 0, "int": 0, "pie": 0}
@@ -423,7 +424,7 @@ class Member:
         self.exp = min(self.exp + parm, 999999)
 
     # レベルアップ
-    def lvup(self, parm):
+    def lvup(self, parm: dict):
         if self.lv < 50:
             self.lv += 1
             self.mhp = parm["mhp"]

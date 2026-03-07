@@ -1,4 +1,5 @@
 import pyxel as px
+from typing import List
 import util
 import copy
 import math
@@ -1610,7 +1611,7 @@ class App:
         self.player = None
         self.battle = None
         self.scene = None
-        self.members = []
+        self.members: List['Member'] = []
         self.status_timer = 0
         self.btn_reverse = False
         self.btn_reset_timer = 0
@@ -1787,12 +1788,12 @@ class App:
 
     def init_data(self):
         self.player = Actor({"x": 1, "y": 39, "z": -1, "dir": 0})
-        self.members = []
-        self.orders = []
-        self.reserves = []
-        self.items = []
+        self.members: List['Member'] = []
+        self.orders: List[str] = []
+        self.reserves: List['Member'] = []
+        self.items: List[int] = []
         self.gold = 600
-        self.stocks = []
+        self.stocks: List[int] = []
         self.encount = 0
         self.frames = 0
         self.reset_chambers()
@@ -1888,7 +1889,7 @@ class App:
         self.reserves.sort(key=lambda mb: (mb.job.id, -mb.lv, mb.nature))
 
     # 転職
-    def change_job(self, member, job_id):
+    def change_job(self, member: 'Member', job_id):
         self.next_music_tick = util.get_play_pos()
         Sounds.bgm("wiz-lvup", False)
         member.change_job(job_id)
@@ -1974,7 +1975,7 @@ class App:
         return Window.open("menu_members", 1, 0, 22, 19, texts)
 
     # ターゲット選択
-    def show_select_members(self, parm=None, x=8, y=4):
+    def show_select_members(self, parm: object = None, x=8, y=4):
         texts = []
         for mb in self.members:
             texts += [
@@ -2050,7 +2051,7 @@ class App:
         Window.all["item_message"].texts = texts
 
     # アイテムを取得（即時ソート）
-    def add_item(self, item):
+    def add_item(self, item: 'Item'):
         self.items.append(item.id)
         self.items.sort()
 
@@ -2219,7 +2220,7 @@ class App:
             Window.open("spells_guide", 17, 0, 30, 1)
         return win
 
-    def available_spell(self, spell, member=None):
+    def available_spell(self, spell: 'Spell', member: 'Member' = None):
         if self.scene in [2, 3]:
             return False
         if member and member.mp[spell.lv] <= 0:
@@ -2230,7 +2231,7 @@ class App:
             return True
         return False
 
-    def use_spell(self, spell, member=None, target=None, item_id=None):
+    def use_spell(self, spell: 'Spell', member: 'Member' = None, target: 'Member' = None, item_id=None):
         if not self.available_spell(spell, member):
             Sounds.sound(7)
             return False, False
@@ -2323,7 +2324,7 @@ class App:
         Window.open("catsle", 10, 13, 21, 17, texts).add_cursol().cur_y = cur_y
 
     # キャッスル内の場所
-    def show_place(self, parm):
+    def show_place(self, parm: object):
         if parm == 0:
             place = "ギルガメッシュのさかば"
         elif parm == 1:
@@ -2415,17 +2416,17 @@ class App:
         Window.open("shop_sell", 2, 5, 29, 16, texts).add_cursol()
 
     # ボルタックしょうてん：メッセージ
-    def show_shop_msg(self, msg, parm=None):
+    def show_shop_msg(self, msg, parm: object = None):
         Window.open("shop_msg", 2, 18, 29, 19, msg).parm = parm
 
     # カントじいん：メイン
-    def show_temple(self, msg):
+    def show_temple(self, msg) -> 'Window':
         Window.open("select_members_mes", 4, 18, 28, 18, msg)
         win = self.show_select_members(None, 4, 3)
         return win
 
     # カントじいん：おかね欄
-    def show_temple_gold(self, gold):
+    def show_temple_gold(self, gold: int):
         texts = ["Gold", util.pad(self.gold, 6)]
         if gold:
             texts += ["", "きふきん", util.pad(gold, 6)]
@@ -2495,7 +2496,7 @@ class App:
         win.texts = win.texts[:-2] + Job(win.cur_x + 1).details
 
     # くんれんじょう キャラクターをつくる（確認）
-    def show_training_new_member(self, member):
+    def show_training_new_member(self, member: 'Member'):
         texts = member.text_detail
         Window.open("training_new_member", 1, 0, 30, 19, texts).parm = member
         exclude_nature = 0
@@ -2531,7 +2532,7 @@ class App:
             Window.close(["training_delete", "training_delete_msg"])
 
     # くんれんじょう なまえ／しょくぎょうを かえる
-    def show_training_change(self, parm, cur_member=None):
+    def show_training_change(self, parm, cur_member: object = None):
         win = Window.get("training_change")
         if parm == 0:
             msg = "どのキャラクターの なまえを かえますか？"
@@ -2554,7 +2555,7 @@ class App:
             Window.open("training_change_msg", 4, 14, 28, 18, msg)
 
     # くんれんじょう 名前入力
-    def show_training_name(self, mode=0, member=None):
+    def show_training_name(self, mode=0, member: 'Member' = None):
         texts = []
         values = []
         characters = const["characters"][mode]
@@ -2593,7 +2594,7 @@ class App:
             Window.open("training_name_guide", 4, 3, 28, 3, text).parm = ""
 
     # くんれんじょう 職業変更
-    def show_training_job(self, member=None):
+    def show_training_job(self, member: 'Member' = None):
         texts = []
         values = []
         for job in Job.all():
@@ -2720,7 +2721,7 @@ class App:
             return
 
     # イベント起動
-    def do_event(self, values):
+    def do_event(self, values: list):
         pl = self.player
         if values[0] in ("up", "down"):
             Window.message(values[0])
@@ -2828,7 +2829,7 @@ class App:
             self.auto_save()
 
     # 透明モードセット（デュマピック、マロール）
-    def set_transparent(self, member, spell_id, item_id):
+    def set_transparent(self, member: 'Member', spell_id, item_id):
         pl = self.player
         Window.close()
         self.menu_visible = False

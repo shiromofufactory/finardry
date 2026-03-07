@@ -1,4 +1,5 @@
 import pyxel as px
+from typing import List
 import util
 import copy
 from userdata import Userdata
@@ -7,7 +8,7 @@ msg_list = util.load_json("data/messages")
 
 
 class Window:
-    def __init__(self, key, x1, y1, x2, y2, texts, transparent=False):
+    def __init__(self, key, x1, y1, x2, y2, texts=[], transparent=False):
         self.key = key
         self.x1 = x1
         self.y1 = y1
@@ -20,7 +21,7 @@ class Window:
         self.scr_y = 0
         self.sub_cur_x = None
         self.sub_cur_y = None
-        self.texts = texts
+        self.texts: List[str] = texts
         self.parm = None
         self.values = None
         self.btn = None
@@ -30,7 +31,7 @@ class Window:
     def cur_value(self):
         return self.values[self.cur_y * len(self.cur_pos_x) + self.cur_x]
 
-    def draw(self, members):
+    def draw(self, members: List['Member']):
         x1 = self.x1 * 8
         y1 = self.y1 * 12 + 8
         x2 = self.x2 * 8 + 8
@@ -110,7 +111,7 @@ class Window:
             px.blt(x1 + cx - 8, y1 + cy - 2, 0, 0, 96, 16, 16, 3)
 
     # キャラクタ表示
-    def draw_member(self, x, y, mb, motion=0):
+    def draw_member(self, x, y, mb: 'Member', motion=0):
         if mb.poison or mb.health in (1, 2) or mb.hp <= mb.mhp // 4:
             motion = 5
         if mb.health > 2:
@@ -194,7 +195,7 @@ class Window:
         return cls.all[key]
 
     @classmethod
-    def close(cls, target=None):
+    def close(cls, target: object = None):
         if target is None:
             windows_copy = copy.deepcopy(cls.all)
             for key in windows_copy:

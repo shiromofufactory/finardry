@@ -99,12 +99,12 @@ def zen(val):
 
 
 # パディング左よせ
-def spacing(val, length):
+def spacing(val: object, length: int):
     return str(val).ljust(length).translate(h2z)[-length:]
 
 
 # パディング右よせ
-def pad(val, length, fill=" "):
+def pad(val: object, length: int, fill=" "):
     return str(val).rjust(length, fill).translate(h2z)[-length:]
 
 

@@ -19,7 +19,7 @@ class Spell:
         return [Spell(spell_id) for spell_id in spells_dict.keys()]
 
     @classmethod
-    def get_cur_spell(cls, spells, cur_y, cur_x):
+    def get_cur_spell(cls, spells: list, cur_y, cur_x):
         spell_type = cur_y % 2 + 1
         spell_lv = cur_y // 2
         spell_x = 0
@@ -37,7 +37,7 @@ class Spell:
         else:
             return []
 
-    def damage(self, target):
+    def damage(self, target: 'Monster'):
         dmg = 0
         count = self.intensity
         if self.attr in target.resist:
@@ -53,7 +53,7 @@ class Spell:
             val += px.rndi(3, 6)
         return val
 
-    def success(self, me, you):
+    def success(self, me: 'Member', you: 'Monster'):
         is_undead = you.tribe == 3
         base_rate = max(10 + (me.lv - you.lv), 1)
         if self.id in (2, 23, 32):  # カティノ、モンティノ、マバディ

@@ -1,4 +1,5 @@
 import pyxel as px
+from typing import List
 import util
 
 monsters_dict = {monster["id"]: monster for monster in util.load_json("data/monsters")}
@@ -15,7 +16,7 @@ class Monster:
             self.hp = int(self.mhp * px.rndf(0.8, 1.0))
         self.sleeping = 0
         self.silent = False
-        self.spelled = []
+        self.spelled: List[int] = []
         self.idx = idx
         self.fade = 0
         self.show = True
@@ -70,7 +71,7 @@ class Monster:
                 self.show = False
         return mx, my
 
-    def is_vanguard(self, monsters):
+    def is_vanguard(self, monsters: List['Monster']):
         living_ms = [ms.idx for ms in monsters if ms.is_live]
         max_idx = max(living_ms)
         return self.idx > max_idx - 3

@@ -1,5 +1,6 @@
 import pyxel as px
 import copy
+from typing import Dict, List, Tuple
 import util
 from window import Window
 from monster import Monster
@@ -13,7 +14,7 @@ LIST_DY = (0, 0, 0, 4, 6, 6, 4, 0, 8, 14, 18, 20, 18, 14, 8, 2)
 
 
 class Battle:
-    def __init__(self, floor, chamber_encount, members, items, seed_id=None):
+    def __init__(self, floor, chamber_encount: object, members: List['Member'], items: List[int], seed_id=None):
         monsters = []
         seed = None
         while len(monsters) < 5:
@@ -36,23 +37,23 @@ class Battle:
         for ms in monsters:
             ms.slide -= [6, 5, 3, 2, 0][len(monsters) - 1]
         self.state = 0
-        self.members = copy.deepcopy(members)
+        self.members: List['Member'] = copy.deepcopy(members)
         self.members_vanguard_idxs = self.members_idxs(True, True)  # 何人目まで前衛？
         for mb in self.members:
             mb.fx = None
         self.phase = None
-        self.commands = []
-        self.actions = None
-        self.action = None
-        self.monsters_effection = {}
-        self.members_effection = {}
+        self.commands: List[dict] = []
+        self.actions: list = None
+        self.action: dict = None
+        self.monsters_effection: Dict[int, dict] = {}
+        self.members_effection: Dict[int, dict] = {}
         self.selected_member = None
         self.selected_monster = None
         self.selector_items = None
         self.win_motion = 0
-        self.monsters = monsters
-        self.items = items
-        self.saved_msg = 0
+        self.monsters: List['Monster'] = monsters
+        self.items: List[int] = items
+        self.saved_msg: list = None
         self.total_exp = 0
         self.total_gold = 0
         self.wait = 0
@@ -201,8 +202,8 @@ class Battle:
 
     # 自キャラの行動
     def member_action(self):
-        mb_idx = self.action["idx"]
-        mb = self.members[mb_idx]
+        mb_idx: int = self.action["idx"]
+        mb: Member = self.members[mb_idx]
         if mb.health:  # 状態異常ならとばす
             self.end_action()
             return
@@ -263,7 +264,7 @@ class Battle:
                     "fx_len": blows_fx * 4,
                 }
             elif cmd["action"] == 3:  # 呪文
-                spell = cmd["spell"]
+                spell: Spell = cmd["spell"]
                 self.popover(f"{mb.name}は {spell.name}をとなえた")
                 if mb.silent:
                     fx_len = 6
@@ -283,7 +284,7 @@ class Battle:
                     "fx_len": 18,
                 }
             elif cmd["action"] == 6:  # アイテム
-                item = cmd["item"]
+                item: Item = cmd["item"]
                 self.popover(f"{mb.name}は {item.name}をつかった")
                 if item.brake:
                     self.items.pop(self.items.index(item.id))
@@ -361,8 +362,8 @@ class Battle:
                 self.apply_members_effection(mb_idx)
 
     # 自キャラ呪文
-    def member_spell(self, mb, cmd):
-        spell = cmd["spell"]
+    def member_spell(self, mb: 'Member', cmd: dict):
+        spell: Spell = cmd["spell"]
         fx_len = 6
         sound_id = None
         for idx in self.members_idxs(False, True):
@@ -525,8 +526,8 @@ class Battle:
 
     # 敵キャラの行動
     def monster_action(self):
-        idx = self.action["idx"]
-        ms = self.monsters[idx]
+        idx: int = self.action["idx"]
+        ms: Monster = self.monsters[idx]
         mse = self.monsters_effection[idx] if idx in self.monsters_effection else None
         if not ms.is_live or ms.sleeping:
             # print(f"{ms.name}は行動できない")
@@ -753,8 +754,8 @@ class Battle:
         return mb_idx
 
     # 敵キャラ呪文
-    def monster_spell(self, ms):
-        spell = self.action["spell"]
+    def monster_spell(self, ms: 'Monster'):
+        spell: Spell = self.action["spell"]
         fx_len = 0
         sound_id = None
         target = -1 if spell.target == 4 else self.select_member()
@@ -1059,7 +1060,7 @@ class Battle:
             for i in range(size):
                 screen_ptr[i] = 0 if i + k >= size else screen_ptr[i + k]
 
-    def draw_fx(self, parm, mx, my, is_member=False):
+    def draw_fx(self, parm: dict, mx, my, is_member=False):
         fx_type = parm["fx_type"]
         fx_len = parm["fx_len"]
         if not fx_len:
@@ -1299,7 +1300,7 @@ class Battle:
             self.phase = "action"
 
     # 敵を倒した
-    def kill_monster(self, monster, dispell=False):
+    def kill_monster(self, monster: 'Monster', dispell=False):
         if not dispell:
             self.total_exp = min(self.total_exp + monster.exp, 999999)
             self.total_gold = min(self.total_gold + monster.gold, 999999)
@@ -1308,7 +1309,7 @@ class Battle:
         self.wait = 12
 
     # 自キャラの位置とモーション
-    def get_member_image(self, idx):
+    def get_member_image(self, idx) -> Tuple[int, int, 'Member', str, int]:
         member = self.members[idx]
         v_idxs = self.members_vanguard_idxs
         x = 208 if not v_idxs or idx <= max(v_idxs) else 224
@@ -1391,7 +1392,7 @@ class Battle:
         return x, y, member, action, motion
 
     # しゅりけんのアニメーション用
-    def get_shuriken_step(self, member):
+    def get_shuriken_step(self, member: 'Member'):
         fx = member.fx
         return 5 + fx[2] * 2 - fx[1]
 
@@ -1409,7 +1410,7 @@ class Battle:
             self.selected_monster = self.selector_items[-1]
 
     # カーソル初期化
-    def init_selector(self, spell, mb_idx):
+    def init_selector(self, spell: 'Spell', mb_idx):
         if spell.target == 0:
             self.selector_items = [mb_idx]
             self.selected_member = mb_idx
@@ -1424,7 +1425,7 @@ class Battle:
                 self.selected_monster = -1
 
     # 行動可能なメンバーを配列で返す
-    def members_idxs(self, only_vanguard=False, with_unhealth=False):
+    def members_idxs(self, only_vanguard=False, with_unhealth=False) -> List[int]:
         mb_idxs = []
         first_idx = None
         for idx, mb in enumerate(self.members):
@@ -1456,14 +1457,14 @@ class Battle:
 
     ### ウィンドウ表示
 
-    def message(self, texts, parm=None):
+    def message(self, texts: List[str], parm=None):
         if Window.get("battle_popover"):
             self.saved_msg = [texts, parm]
         else:
             win = Window.open("battle_msg", 2, 1, 29, 1, texts)
             win.parm = parm
 
-    def popover(self, texts, parm=18):
+    def popover(self, texts: List[str], parm=18):
         win = Window.open("battle_popover", 2, 1, 29, 1, texts)
         win.parm = parm
         return win

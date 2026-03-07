@@ -5,7 +5,7 @@ from sounds import Sounds
 TRANSPARENT = 3
 MOVE_SPEED = 4
 MAP_SIZE = 40
-STEP_XY = ((0, -1), (1, 0), (0, 1), (-1, 0))
+STEP_XY = [(0, -1), (1, 0), (0, 1), (-1, 0)]
 
 TILE = 16
 SCREEN_W, SCREEN_H = 256, 240
